@@ -8,9 +8,10 @@ extern "C" {
 #define MAX_ENTITY 64
 
 struct entity_t {
-    int x;
-    int y;
+    float x;
+    float y;
     int index;
+    float angle;
 
     unsigned char used;
 

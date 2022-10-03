@@ -9,6 +9,9 @@ export abstract class Base {
     // @ts-ignore;
     y: number;
 
+    // @ts-ignore
+    angle: number;
+
     // @ts-ignore;
     index: number;
 

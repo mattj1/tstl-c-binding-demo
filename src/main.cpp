@@ -6,7 +6,7 @@
 // http://lua-users.org/wiki/MetatableEvents
 // http://www.cse.yorku.ca/~oz/hash.html
 // https://stackoverflow.com/questions/59091462/from-c-how-can-i-print-the-contents-of-the-lua-stack
-
+// https://stackoverflow.com/questions/12441593/lua-accessing-a-tables-keys-and-values
 
 static int _traceback(lua_State *L) {
     const char *msg = lua_tostring(L, 1);
@@ -88,7 +88,8 @@ int main(int argc, const char *argv[]) {
         for(int i = 0; i < MAX_ENTITY; i++) {
             entity_t *entity = &entities[i];
             if (entity->used) {
-                DrawCircle(entity->x, entity->y, 20, RED);
+//                DrawCircle(entity->x, entity->y, 20, RED);
+                DrawRectanglePro(Rectangle{entity->x, entity->y, 20, 20}, Vector2{10, 10}, entity->angle, RED);
             }
         }
 

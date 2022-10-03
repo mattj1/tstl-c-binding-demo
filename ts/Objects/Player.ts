@@ -13,19 +13,24 @@ export class Player extends Base {
 
     Update() {
         if (IsKeyDown(263)) {
-            this.x -= 2;
+            this.angle -= 2;
+            // this.x -= 2;
         }
 
         if (IsKeyDown(262)) {
-            this.x += 2;
+            // Right pressed
+            this.angle += 2;
+            // this.x += 2;
         }
 
         if (IsKeyDown(265)) {
-            this.y -= 2;
+            this.x += 2 * Math.cos(this.angle * Math.PI / 180.0);
+            this.y += 2 * Math.sin(this.angle * Math.PI / 180.0);
+            // this.y -= 2;
         }
 
         if (IsKeyDown(264)) {
-            this.y += 2;
+            // this.y += 2;
         }
     }
 }

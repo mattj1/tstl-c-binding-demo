@@ -8,6 +8,11 @@
     static int read_##name(lua_State *L, entity_t *entity) { lua_pushinteger(L, entity->name); return 1; }; \
     static int write_##name(lua_State *L, entity_t *entity) { entity->name = lua_tointeger(L, -1); return 0; };
 
+#define PROP_FLOAT(name) \
+    static int read_##name(lua_State *L, entity_t *entity) { lua_pushnumber(L, entity->name); return 1; }; \
+    static int write_##name(lua_State *L, entity_t *entity) { entity->name = lua_tonumber(L, -1); return 0; };
+
+
 typedef int (*propFunc)(lua_State *L, entity_t *entity);
 
 struct entity_prop_info_t {
@@ -31,9 +36,10 @@ static unsigned long hash(const char *str) {
     return hash & 0x7f;
 }
 
-PROP_INTEGER(x);
-PROP_INTEGER(y);
+PROP_FLOAT(x);
+PROP_FLOAT(y);
 PROP_INTEGER(index);
+PROP_FLOAT(angle);
 
 static entity_prop_info_t *getPropForName(const char *name) {
     long int h = hash(name);
@@ -145,11 +151,15 @@ void entity_init(lua_State *L) {
     entity_prop_info[2].readFunc = read_index;
     entity_prop_info[2].writeFunc = write_index;
 
-    for(int i = 0; i < 3; i++) {
+    entity_prop_info[3].name = "angle";
+    entity_prop_info[3].readFunc = read_angle;
+    entity_prop_info[3].writeFunc = write_angle;
+
+    for(int i = 0; i < 4; i++) {
         entity_prop_info_t *prop = &entity_prop_info[i];
 
         unsigned long h = hash(prop->name);
-//        printf("Hash for: %s: %lu\n", prop->name, h);
+        printf("Hash for: %s: %lu\n", prop->name, h);
 
         assert(entity_prop_info_hashtable[h] == NULL);
         entity_prop_info_hashtable[h] = prop;
