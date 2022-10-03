@@ -29,27 +29,12 @@ export abstract class Base {
 Base.prototype.__index = function(this: void, t, k): any {
     // console.log("Base.prototype.__index ", t, k)
 
-    let raw_val = rawget(t, k)
-    if (raw_val != null) {
-        console.log("__index: found value with rawget for ", k)
-        return raw_val;
-    }
-
     if (isInternalProp(k)) {
         return getProp(rawget(t, "__data"), k)
     }
 
     let mt: any = getmetatable(t)
-    // for key,value in pairs(mt) do
-    //     -- print("found member " .. key);
-    // end
-
-    // print("Base.prototype.__index: returning from metatable: " .. k)
     return mt[k];
-
-    // --raw_val = rawget(rawget(Base, "prototype"), k)
-    // --print("__index: Returning something else for key ".. k .. ": " .. tostring(raw_val))
-    // --return raw_val;
 }
 
 // @ts-ignore
