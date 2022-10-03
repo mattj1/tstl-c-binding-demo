@@ -38,7 +38,6 @@ int main(int argc, const char *argv[]) {
     lua_getfield(L, -1, "path"); // get field "path" from table at top of stack (-1)
     std::string cur_path = lua_tostring(L, -1); // grab path string from top of stack
     cur_path.append(";"); // do your path magic here
-//    cur_path.append(FS_FullPathForFile("lua"));
     cur_path.append("./resources/lua");
     cur_path.append("/?.lua");
     lua_pop(L, 1); // get rid of the string on the stack we just pushed on line 5
@@ -47,49 +46,6 @@ int main(int argc, const char *argv[]) {
     lua_pop(L, 1); // get rid of package table from top of stack
 
     int result;
-/*
-    lua_pushnil(L);
-//    dumpstack(L);
-
-    while (lua_next(L, -2) != 0) {
-//        dumpstack(L);
-        if (lua_type(L, -1) == LUA_TFUNCTION) {
-            lua_setglobal(L, lua_tostring(L, -2));
-        } else {
-            lua_pop(L, 1);
-        }
-//        // uses 'key' (at index -2) and 'value' (at index -1)
-//        printf("%s - %s\n", luaL_typename(L, -2), luaL_typename(L, -1));
-//        printf("-1: %s %d\n", lua_tostring(L, -1),  lua_type(L, -1));
-//        printf("-2: %s %d\n", lua_tostring(L, -2),  lua_type(L, -2));
-        // removes 'value'; keeps 'key' for next iteration
-//        lua_pop(L, 1);
-    }
-*/
-
-//    int tstl_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-
-//    dumpstack(L);
-
-//    lua_rawgeti(L, LUA_REGISTRYINDEX, tstl_ref);
-//    lua_getfield(L, -1, "__TS__New");
-//    lua_setglobal(L, "__TS__New");
-//
-//    lua_getfield(L, -1, "__TS__SourceMapTraceBack");
-//    lua_setglobal(L, "__TS__SourceMapTraceBack");
-//
-//    lua_getfield(L, -1, "__TS__Class");
-//    lua_setglobal(L, "__TS__Class");
-
-//    lua_pop(L, 1);
-//    dumpstack(L);
-
-//    if(result = luaL_dofile(L, "test3.lua")) {
-//    if (result = luaL_dofile(L, "./resources/lua/test.lua")) {
-//        printf("%s\n", lua_tostring(L, -1));
-//        exit(0);
-//    }
-
     result = luaL_dofile(L, "./resources/lua/main.lua");
     if (result) {
         printf("dofile main.lua: %s\n", lua_tostring(L, -1));

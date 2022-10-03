@@ -3,6 +3,11 @@
 #include <cassert>
 #include "common.h"
 
+
+#define PROP_INTEGER(name) \
+    static int read_##name(lua_State *L, entity_t *entity) { lua_pushinteger(L, entity->name); return 1; }; \
+    static int write_##name(lua_State *L, entity_t *entity) { entity->name = lua_tointeger(L, -1); return 0; };
+
 typedef int (*propFunc)(lua_State *L, entity_t *entity);
 
 struct entity_prop_info_t {
@@ -25,10 +30,6 @@ static unsigned long hash(const char *str) {
 //        printf("original hash %lu\n", hash);
     return hash & 0x7f;
 }
-
-#define PROP_INTEGER(name) \
-    static int read_##name(lua_State *L, entity_t *entity) { lua_pushinteger(L, entity->name); return 1; }; \
-    static int write_##name(lua_State *L, entity_t *entity) { entity->name = lua_tointeger(L, -1); return 0; };
 
 PROP_INTEGER(x);
 PROP_INTEGER(y);
