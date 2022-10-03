@@ -1,7 +1,5 @@
 
 export function SpawnEntity<T>(clz: any): T {
-    // console.log("SpawnEntity");
-
     // TODO: Entity available?
 
     let instance = new clz();

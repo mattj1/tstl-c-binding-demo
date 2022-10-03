@@ -12,8 +12,6 @@ export class Player extends Base {
     }
 
     Update() {
-        // console.log("Derived.Update()", this.index);
-
         if (IsKeyDown(263)) {
             this.x -= 2;
         }
