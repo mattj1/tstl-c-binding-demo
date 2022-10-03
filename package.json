@@ -1,0 +1,17 @@
+{
+  "name": "luatest",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "tstl",
+    "dev": "tstl --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.7.23",
+    "typescript-to-lua": "^1.10.1",
+    "lua-types": "2.10.1"
+  }
+}

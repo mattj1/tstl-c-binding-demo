@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
+    "moduleResolution": "node",
+    "types": ["lua-types/5.4"],
+    "strict": false,
+    "outDir": "./resources/lua"
+  },
+  "include": ["ts/**/*"],
+  "tstl": {
+    "buildMode": "default",
+    "luaTarget": "5.4",
+    "sourceMapTraceback": true,
+    "luaLibImport": "require",
+  }
+}
