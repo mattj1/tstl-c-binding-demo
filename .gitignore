@@ -3,3 +3,4 @@ node_modules/
 *.xcuserdatad/
 old/
 cmake-build-debug/
+resources/lua

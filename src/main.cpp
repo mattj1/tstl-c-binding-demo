@@ -1,6 +1,10 @@
 #include <string>
-#import <raylib.h>
+#include <raylib.h>
+#include "rlgl.h"
+
+#include <cassert>
 #include "common.h"
+#include "art.h"
 
 // https://stackoverflow.com/questions/42735621/link-c-variable-to-lua
 // http://lua-users.org/wiki/MetatableEvents
@@ -22,8 +26,23 @@ int l_iskeydown(lua_State *L) {
     return 1;
 }
 
-int main(int argc, const char *argv[]) {
+int l_iskeypressed(lua_State *L) {
+    lua_pushboolean(L, IsKeyPressed(lua_tonumber(L, -1)));
+    return 1;
+}
 
+void DrawVectorArt(VectorArt *art) {
+    rlColor3f(0, 0, 0);
+
+    rlBegin(RL_LINES);
+    for(int i = 0; i < art->num_lines; i ++) {
+        rlVertex3f(art->art[i * 2].x, 0, art->art[i * 2].y);
+        rlVertex3f(art->art[i * 2 + 1].x, 0, art->art[i * 2 + 1].y);
+    }
+    rlEnd();
+}
+
+int main(int argc, const char *argv[]) {
     lua_State *L = luaL_newstate();
     luaL_openlibs(L);
     lua_pushcfunction(L, _traceback);
@@ -31,6 +50,9 @@ int main(int argc, const char *argv[]) {
 
     lua_pushcfunction(L, l_iskeydown);
     lua_setglobal(L, "IsKeyDown");
+
+    lua_pushcfunction(L, l_iskeypressed);
+    lua_setglobal(L, "IsKeyPressed");
 
     entity_init(L);
 
@@ -52,7 +74,17 @@ int main(int argc, const char *argv[]) {
         exit(0);
     }
 
-    lua_getfield(L, -1, "InitGame");
+    lua_createtable(L, 0, 10);
+    lua_setglobal(L, "resources");
+
+    lua_getglobal(L, "resources");
+    lua_pushlightuserdata(L, &player_ship);
+    lua_setfield(L, -2,  "player_ship");
+    lua_pushlightuserdata(L, &shot);
+    lua_setfield(L, -2,  "shot");
+    lua_pop(L, 1);
+
+    lua_getglobal(L, "InitGame");
     lua_call(L, 0, 1);
 
     int game_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -60,9 +92,35 @@ int main(int argc, const char *argv[]) {
     lua_pop(L, 3);
     dumpstack(L);
 
+    msgbuf_t buf{};
+    buf.length = 123;
+
+    entity_t *entity = &entities[0];
+    lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
+    lua_getfield(L, -1, "ReadFromSnapshot");
+    lua_pushvalue(L, -2);
+    lua_pushlightuserdata(L, &buf);
+    lua_call(L, 2, 0);
+
+////    lua_getglobal(L, "runstuff");
+//    lua_call(L, 0, 0);
+
     InitWindow(800, 450, "raylib [core] example - basic window");
     SetTargetFPS(60);
 
+    Model m = LoadModel("./untitled.obj");
+    Camera camera = { 0 };
+//    camera.position = Vector3{ 10.0f, 10.0f, 10.0f }; // Camera position
+    camera.position = Vector3{ 0.0f, 40.0f, 0.0f }; // Camera position
+    camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+//    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+    camera.up = Vector3{ 0.0f, 0.0f, -1.0f };          // Camera up vector (rotation towards target)
+    camera.fovy = 45.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
+    SetCameraMode(camera, CAMERA_FREE); // Set a free camera mode
+
+//    Mesh mesh = GenMeshCube(1, 1, 1);
+//    Model m = LoadModelFromMesh(mesh);
     while (!WindowShouldClose())
     {
         lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
@@ -70,13 +128,22 @@ int main(int argc, const char *argv[]) {
         lua_call(L, 0, 0);
 
         for(int i = 0; i < MAX_ENTITY; i++) {
-            entity_t *entity = &entities[i];
-            if(entity->used) {
+            entity = &entities[i];
+            if(entity->used && entity->active) {
                 if(entity->lua_ref) {
                     lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
                     lua_getfield(L, -1, "Update");
                     lua_pushvalue(L, -2);
                     lua_call(L, 1, 0);
+                }
+
+                if(!entity->active) {
+                    if(entity->lua_ref) {
+                        luaL_unref(L, LUA_REGISTRYINDEX, entity->lua_ref);
+                    }
+
+                    entity->used = false;
+                    entity->lua_ref = 0;
                 }
             }
         }
@@ -84,14 +151,39 @@ int main(int argc, const char *argv[]) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawText("Press arrow keys to move", 190, 200, 20, LIGHTGRAY);
+        BeginMode3D(camera);
+//
 
+//        rlRotatef(GetTime() * 50, 0, 1, 0);
+
+//        DrawModelWires(m, Vector3{0, 0, 0}, 1.0, BLUE);
+
+//        DrawModel(m, Vector3{0,0,0}, 1.0, BLUE );
         for(int i = 0; i < MAX_ENTITY; i++) {
             entity_t *entity = &entities[i];
             if (entity->used) {
+
+                lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
+                lua_getfield(L, -1, "GetDrawable");
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+
+                auto art = (VectorArt *) lua_touserdata(L, -1);
+
+                if(art) {
+
+                    rlPushMatrix();
+                    rlTranslatef(entity->x, 0, entity->y);
+                    rlScalef(entity->drawScale, entity->drawScale, entity->drawScale);
+                    rlRotatef(entity->angle, 0, 1, 0);
+                    DrawVectorArt(art);
 //                DrawCircle(entity->x, entity->y, 20, RED);
-                DrawRectanglePro(Rectangle{entity->x, entity->y, 20, 20}, Vector2{10, 10}, entity->angle, RED);
+//                DrawRectanglePro(Rectangle{entity->x, entity->y, 20, 20}, Vector2{10, 10}, entity->angle, RED);
+                    rlPopMatrix();
+                }
             }
         }
+        EndMode3D();
 
         EndDrawing();
     }

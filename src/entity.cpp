@@ -8,21 +8,20 @@
     static int read_##name(lua_State *L, entity_t *entity) { lua_pushinteger(L, entity->name); return 1; }; \
     static int write_##name(lua_State *L, entity_t *entity) { entity->name = lua_tointeger(L, -1); return 0; };
 
+#define PROP_BOOLEAN(name) \
+    static int read_##name(lua_State *L, entity_t *entity) { lua_pushboolean(L, entity->name); return 1; }; \
+    static int write_##name(lua_State *L, entity_t *entity) { entity->name = lua_toboolean(L, -1); return 0; };
+
 #define PROP_FLOAT(name) \
     static int read_##name(lua_State *L, entity_t *entity) { lua_pushnumber(L, entity->name); return 1; }; \
     static int write_##name(lua_State *L, entity_t *entity) { entity->name = lua_tonumber(L, -1); return 0; };
 
+#define SETUP_PROP(name) entity_prop_info[prop_count ++] = {#name, read_##name, write_##name }
 
-typedef int (*propFunc)(lua_State *L, entity_t *entity);
 
-struct entity_prop_info_t {
-    const char *name;
-    propFunc readFunc;
-    propFunc writeFunc;
-};
 
-entity_prop_info_t *entity_prop_info_hashtable[128];
-entity_prop_info_t entity_prop_info[10];
+prop_info_t *entity_prop_info_hashtable[128];
+prop_info_t entity_prop_info[10];
 entity_t entities[MAX_ENTITY];
 
 static unsigned long hash(const char *str) {
@@ -40,8 +39,10 @@ PROP_FLOAT(x);
 PROP_FLOAT(y);
 PROP_INTEGER(index);
 PROP_FLOAT(angle);
+PROP_BOOLEAN(active);
+PROP_FLOAT(drawScale);
 
-static entity_prop_info_t *getPropForName(const char *name) {
+static prop_info_t *getPropForName(const char *name) {
     long int h = hash(name);
     if(entity_prop_info_hashtable[h]) {
         if(!strcmp(name, entity_prop_info_hashtable[h]->name)) {
@@ -72,7 +73,6 @@ static int l_is_internal_prop(lua_State *L) {
     return 1;
 }
 
-
 static int l_getprop(lua_State *L) {
     const char *prop = lua_tostring(L, -1);
 
@@ -83,10 +83,10 @@ static int l_getprop(lua_State *L) {
         return 0;
     }
 
-    entity_prop_info_t *propInfo = getPropForName(prop);
+    prop_info_t *propInfo = getPropForName(prop);
     assert(propInfo != NULL);
 
-    entity_t *entity = (entity_t *) lua_touserdata(L, -2);
+    auto *entity = (entity_t *) lua_touserdata(L, -2);
 
     //    printf("Got entity: %d\n", entity->index);
     return propInfo->readFunc(L, entity);
@@ -97,17 +97,17 @@ static int l_setprop(lua_State *L) {
     // data, prop, value
 
     const char *prop = lua_tostring(L, -2);
-//    printf("l_setprop: %s\n", prop);
+    //printf("l_setprop: %s\n", prop);
 
     if (!lua_islightuserdata(L, -3)) {
         printf("l_setprop: Error: is not light userdata");
         return 0;
     }
 
-    entity_prop_info_t *propInfo = getPropForName(prop);
+    prop_info_t *propInfo = getPropForName(prop);
     assert(propInfo != NULL);
 
-    entity_t *entity = (entity_t *) lua_touserdata(L, -3);
+    auto *entity = (entity_t *) lua_touserdata(L, -3);
 
     return propInfo->writeFunc(L, entity);
 }
@@ -118,16 +118,37 @@ int l_assign_entity(lua_State *L) {
         entity_t *entity = &entities[i];
         if(entity->used == 0) {
             entity->used = 1;
+            entity->active = 1;
+            entity->drawScale = 1.0f;
 
             lua_pushstring(L, "__data");
             lua_pushlightuserdata(L, entity);
             lua_rawset(L, -3);
 
             entity->lua_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-            return 0;
+            break;
         }
     }
 
+    return 0;
+}
+
+int l_MSG_ReadInt(lua_State *L) {
+    auto *msg = static_cast<msgbuf_t *>(lua_touserdata(L, -1));
+    lua_pushinteger(L, *(int *) &msg->buf[msg->pos]);
+    msg->pos += 4;
+    return 1;
+}
+
+int l_init_entity_base(lua_State *L) {
+    // -2: RegisterClass Func
+
+    // -1: Class we're registering
+    lua_pushcfunction(L, l_is_internal_prop);
+    lua_pushcfunction(L, l_getprop);
+    lua_pushcfunction(L, l_setprop);
+
+    lua_call(L, 4, 0);
     return 0;
 }
 
@@ -139,41 +160,30 @@ void entity_init(lua_State *L) {
         entities[i].lua_ref = 0;
     }
 
-    entity_prop_info[0].name = "x";
-    entity_prop_info[0].readFunc = read_x;
-    entity_prop_info[0].writeFunc = write_x;
+    int prop_count = 0;
+    SETUP_PROP(x);
+    SETUP_PROP(y);
+    SETUP_PROP(index);
+    SETUP_PROP(angle);
+    SETUP_PROP(active);
+    SETUP_PROP(drawScale);
 
-    entity_prop_info[1].name = "y";
-    entity_prop_info[1].readFunc = read_y;
-    entity_prop_info[1].writeFunc = write_y;
-
-    entity_prop_info[2].name = "index";
-    entity_prop_info[2].readFunc = read_index;
-    entity_prop_info[2].writeFunc = write_index;
-
-    entity_prop_info[3].name = "angle";
-    entity_prop_info[3].readFunc = read_angle;
-    entity_prop_info[3].writeFunc = write_angle;
-
-    for(int i = 0; i < 4; i++) {
-        entity_prop_info_t *prop = &entity_prop_info[i];
+    for(int i = 0; i < prop_count; i++) {
+        prop_info_t *prop = &entity_prop_info[i];
 
         unsigned long h = hash(prop->name);
         printf("Hash for: %s: %lu\n", prop->name, h);
 
-        assert(entity_prop_info_hashtable[h] == NULL);
+        assert(entity_prop_info_hashtable[h] == nullptr);
         entity_prop_info_hashtable[h] = prop;
     }
 
-    lua_pushcfunction(L, l_is_internal_prop);
-    lua_setglobal(L, "isInternalProp");
-
-    lua_pushcfunction(L, l_getprop);
-    lua_setglobal(L, "getProp");
-
-    lua_pushcfunction(L, l_setprop);
-    lua_setglobal(L, "setProp");
-
     lua_pushcfunction(L, l_assign_entity);
     lua_setglobal(L, "AssignEntity");
+
+    lua_pushcfunction(L, l_MSG_ReadInt);
+    lua_setglobal(L, "MSG_ReadInt");
+
+    lua_pushcfunction(L, l_init_entity_base);
+    lua_setglobal(L, "Internal_Init_Entity_Base");
 }

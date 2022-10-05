@@ -4,6 +4,7 @@ import {SpawnEntity} from "./Entity";
 let player: Player;
 
 export class Game {
+
     constructor() {
         console.log("New Game")
 
