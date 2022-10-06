@@ -81,6 +81,9 @@ void UpdateDrawFrame() {
     BeginDrawing();
     ClearBackground(RAYWHITE);
     DrawText("Press arrow keys to move", 190, 200, 20, LIGHTGRAY);
+    entity_t *player = &entities[0];
+    camera.position = Vector3{ player->x, 40.0f, player->y }; // Camera position
+    camera.target = Vector3{ player->x, 0.0f, player->y };      // Camera looking at point
     BeginMode3D(camera);
 //
 
@@ -89,6 +92,17 @@ void UpdateDrawFrame() {
 //        DrawModelWires(m, Vector3{0, 0, 0}, 1.0, BLUE);
 
 //        DrawModel(m, Vector3{0,0,0}, 1.0, BLUE );
+
+    rlBegin(RL_LINES);
+    for(int x = -100; x < 100; x+= 10) {
+        rlVertex3f(x, 0, -100);
+        rlVertex3f(x, 0, 100);
+
+        rlVertex3f(-100, 0,  x);
+        rlVertex3f(100, 0, x);
+    }
+    rlEnd();
+
     for(int i = 0; i < MAX_ENTITY; i++) {
         entity_t *entity = &entities[i];
         if (entity->used) {
@@ -107,7 +121,6 @@ void UpdateDrawFrame() {
                 rlScalef(entity->drawScale, entity->drawScale, entity->drawScale);
                 rlRotatef(entity->angle, 0, 1, 0);
                 DrawVectorArt(art);
-//                DrawCircle(entity->x, entity->y, 20, RED);
 //                DrawRectanglePro(Rectangle{entity->x, entity->y, 20, 20}, Vector2{10, 10}, entity->angle, RED);
                 rlPopMatrix();
             }
@@ -184,8 +197,7 @@ int main(int argc, const char *argv[]) {
     printf("Will InitWindow...");
     InitWindow(800, 600, "raylib [core] example - basic window");
 
-    camera.position = Vector3{ 0.0f, 40.0f, 0.0f }; // Camera position
-    camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+
 //    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.up = Vector3{ 0.0f, 0.0f, -1.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 45.0f;                                // Camera field-of-view Y
