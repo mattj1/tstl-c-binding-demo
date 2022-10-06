@@ -11,7 +11,6 @@ export class Shot extends Base {
 
     PostInit() {
         this.drawScale = 0.2;
-
     }
 
     Update() {
@@ -26,8 +25,6 @@ export class Shot extends Base {
         let angle = this.angle * Math.PI / 180.0
         this.x += velocity * Math.cos(angle);
         this.y -= velocity * Math.sin(angle);
-
-
     }
 
     GetDrawable(): any {
