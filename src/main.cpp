@@ -1,5 +1,9 @@
 #include <string>
 #include <raylib.h>
+#if defined(PLATFORM_WEB)
+#include <emscripten/emscripten.h>
+#endif
+
 #include "rlgl.h"
 
 #include <cassert>
@@ -42,8 +46,80 @@ void DrawVectorArt(VectorArt *art) {
     rlEnd();
 }
 
+Camera camera = { 0 };
+static lua_State *L;
+static int game_ref;
+
+void UpdateDrawFrame() {
+    entity_t *entity;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
+    lua_getfield(L, -1, "Update");
+    lua_call(L, 0, 0);
+
+    for(int i = 0; i < MAX_ENTITY; i++) {
+        entity = &entities[i];
+        if(entity->used && entity->active) {
+            if(entity->lua_ref) {
+                lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
+                lua_getfield(L, -1, "Update");
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 0);
+            }
+
+            if(!entity->active) {
+                if(entity->lua_ref) {
+                    luaL_unref(L, LUA_REGISTRYINDEX, entity->lua_ref);
+                }
+
+                entity->used = false;
+                entity->lua_ref = 0;
+            }
+        }
+    }
+
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+    DrawText("Press arrow keys to move", 190, 200, 20, LIGHTGRAY);
+    BeginMode3D(camera);
+//
+
+//        rlRotatef(GetTime() * 50, 0, 1, 0);
+
+//        DrawModelWires(m, Vector3{0, 0, 0}, 1.0, BLUE);
+
+//        DrawModel(m, Vector3{0,0,0}, 1.0, BLUE );
+    for(int i = 0; i < MAX_ENTITY; i++) {
+        entity_t *entity = &entities[i];
+        if (entity->used) {
+
+            lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
+            lua_getfield(L, -1, "GetDrawable");
+            lua_pushvalue(L, -2);
+            lua_call(L, 1, 1);
+
+            auto art = (VectorArt *) lua_touserdata(L, -1);
+
+            if(art) {
+
+                rlPushMatrix();
+                rlTranslatef(entity->x, 0, entity->y);
+                rlScalef(entity->drawScale, entity->drawScale, entity->drawScale);
+                rlRotatef(entity->angle, 0, 1, 0);
+                DrawVectorArt(art);
+//                DrawCircle(entity->x, entity->y, 20, RED);
+//                DrawRectanglePro(Rectangle{entity->x, entity->y, 20, 20}, Vector2{10, 10}, entity->angle, RED);
+                rlPopMatrix();
+            }
+        }
+    }
+    EndMode3D();
+
+    EndDrawing();
+}
+
 int main(int argc, const char *argv[]) {
-    lua_State *L = luaL_newstate();
+    L = luaL_newstate();
     luaL_openlibs(L);
     lua_pushcfunction(L, _traceback);
     assert(lua_gettop(L) == 1);
@@ -69,6 +145,7 @@ int main(int argc, const char *argv[]) {
 
     int result;
     result = luaL_dofile(L, "./resources/lua/main.lua");
+//    result = luaL_dofile(L, "./lua/main.lua");
     if (result) {
         printf("dofile main.lua: %s\n", lua_tostring(L, -1));
         exit(0);
@@ -87,30 +164,26 @@ int main(int argc, const char *argv[]) {
     lua_getglobal(L, "InitGame");
     lua_call(L, 0, 1);
 
-    int game_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    game_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     printf("Game ref: %d\n", game_ref);
-    lua_pop(L, 3);
+
+//    lua_pop(L, 3);
+    printf("???\n");
     dumpstack(L);
 
-    msgbuf_t buf{};
-    buf.length = 123;
+//    msgbuf_t buf{};
+//    buf.length = 123;
 
     entity_t *entity = &entities[0];
-    lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
-    lua_getfield(L, -1, "ReadFromSnapshot");
-    lua_pushvalue(L, -2);
-    lua_pushlightuserdata(L, &buf);
-    lua_call(L, 2, 0);
+//    lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
+//    lua_getfield(L, -1, "ReadFromSnapshot");
+//    lua_pushvalue(L, -2);
+//    lua_pushlightuserdata(L, &buf);
+//    lua_call(L, 2, 0);
 
-////    lua_getglobal(L, "runstuff");
-//    lua_call(L, 0, 0);
+    printf("Will InitWindow...");
+    InitWindow(800, 600, "raylib [core] example - basic window");
 
-    InitWindow(800, 450, "raylib [core] example - basic window");
-    SetTargetFPS(60);
-
-    Model m = LoadModel("./untitled.obj");
-    Camera camera = { 0 };
-//    camera.position = Vector3{ 10.0f, 10.0f, 10.0f }; // Camera position
     camera.position = Vector3{ 0.0f, 40.0f, 0.0f }; // Camera position
     camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
 //    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
@@ -119,73 +192,22 @@ int main(int argc, const char *argv[]) {
     camera.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
     SetCameraMode(camera, CAMERA_FREE); // Set a free camera mode
 
+#if defined(PLATFORM_WEB)
+    emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
+#else
+    SetTargetFPS(60);
+#endif
+
+//    Model m = LoadModel("./untitled.obj");
+
+//    camera.position = Vector3{ 10.0f, 10.0f, 10.0f }; // Camera position
+
+
 //    Mesh mesh = GenMeshCube(1, 1, 1);
 //    Model m = LoadModelFromMesh(mesh);
     while (!WindowShouldClose())
     {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
-        lua_getfield(L, -1, "Update");
-        lua_call(L, 0, 0);
-
-        for(int i = 0; i < MAX_ENTITY; i++) {
-            entity = &entities[i];
-            if(entity->used && entity->active) {
-                if(entity->lua_ref) {
-                    lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
-                    lua_getfield(L, -1, "Update");
-                    lua_pushvalue(L, -2);
-                    lua_call(L, 1, 0);
-                }
-
-                if(!entity->active) {
-                    if(entity->lua_ref) {
-                        luaL_unref(L, LUA_REGISTRYINDEX, entity->lua_ref);
-                    }
-
-                    entity->used = false;
-                    entity->lua_ref = 0;
-                }
-            }
-        }
-
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawText("Press arrow keys to move", 190, 200, 20, LIGHTGRAY);
-        BeginMode3D(camera);
-//
-
-//        rlRotatef(GetTime() * 50, 0, 1, 0);
-
-//        DrawModelWires(m, Vector3{0, 0, 0}, 1.0, BLUE);
-
-//        DrawModel(m, Vector3{0,0,0}, 1.0, BLUE );
-        for(int i = 0; i < MAX_ENTITY; i++) {
-            entity_t *entity = &entities[i];
-            if (entity->used) {
-
-                lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
-                lua_getfield(L, -1, "GetDrawable");
-                lua_pushvalue(L, -2);
-                lua_call(L, 1, 1);
-
-                auto art = (VectorArt *) lua_touserdata(L, -1);
-
-                if(art) {
-
-                    rlPushMatrix();
-                    rlTranslatef(entity->x, 0, entity->y);
-                    rlScalef(entity->drawScale, entity->drawScale, entity->drawScale);
-                    rlRotatef(entity->angle, 0, 1, 0);
-                    DrawVectorArt(art);
-//                DrawCircle(entity->x, entity->y, 20, RED);
-//                DrawRectanglePro(Rectangle{entity->x, entity->y, 20, 20}, Vector2{10, 10}, entity->angle, RED);
-                    rlPopMatrix();
-                }
-            }
-        }
-        EndMode3D();
-
-        EndDrawing();
+        UpdateDrawFrame();
     }
 
     CloseWindow();
