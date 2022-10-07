@@ -1,4 +1,5 @@
 import {Base} from "./Base";
+import {RegisterClass} from "../Entity";
 
 export class Shot extends Base {
     life: number;
@@ -31,3 +32,5 @@ export class Shot extends Base {
         return _G.resources.shot;
     }
 }
+
+RegisterClass(Shot);

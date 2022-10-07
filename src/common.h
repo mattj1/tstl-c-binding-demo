@@ -20,6 +20,7 @@ struct entity_t {
     int index;
     float angle;
     float drawScale;
+    int classID;
 
     unsigned char active;
     unsigned char used;

@@ -1,4 +1,4 @@
-import {RegisterClass} from "../Bind";
+import {BindInternalClass} from "../Bind";
 
 export abstract class Base {
     // Internal properties
@@ -9,6 +9,7 @@ export abstract class Base {
     index: number;
     active: boolean;
     drawScale: number;
+    classID: number;
 
 
     // TS properties
@@ -31,5 +32,5 @@ export abstract class Base {
     }
 }
 
-Internal_Init_Entity_Base(RegisterClass, Base);
+Internal_Init_Entity_Base(BindInternalClass, Base);
 

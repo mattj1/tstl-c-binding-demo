@@ -41,6 +41,7 @@ PROP_INTEGER(index);
 PROP_FLOAT(angle);
 PROP_BOOLEAN(active);
 PROP_FLOAT(drawScale);
+PROP_INTEGER(classID);
 
 static prop_info_t *getPropForName(const char *name) {
     long int h = hash(name);
@@ -167,6 +168,7 @@ void entity_init(lua_State *L) {
     SETUP_PROP(angle);
     SETUP_PROP(active);
     SETUP_PROP(drawScale);
+    SETUP_PROP(classID);
 
     for(int i = 0; i < prop_count; i++) {
         prop_info_t *prop = &entity_prop_info[i];

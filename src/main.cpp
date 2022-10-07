@@ -57,6 +57,8 @@ void UpdateDrawFrame() {
     lua_getfield(L, -1, "Update");
     lua_call(L, 0, 0);
 
+    lua_pop(L, 1); // pop game ref
+
     for(int i = 0; i < MAX_ENTITY; i++) {
         entity = &entities[i];
         if(entity->used && entity->active) {
@@ -65,6 +67,8 @@ void UpdateDrawFrame() {
                 lua_getfield(L, -1, "Update");
                 lua_pushvalue(L, -2);
                 lua_call(L, 1, 0);
+
+                lua_pop(L, 1);  // pop lua ref
             }
 
             if(!entity->active) {
@@ -85,8 +89,6 @@ void UpdateDrawFrame() {
     camera.position = Vector3{ player->x, 40.0f, player->y }; // Camera position
     camera.target = Vector3{ player->x, 0.0f, player->y };      // Camera looking at point
     BeginMode3D(camera);
-//
-
 //        rlRotatef(GetTime() * 50, 0, 1, 0);
 
 //        DrawModelWires(m, Vector3{0, 0, 0}, 1.0, BLUE);
@@ -113,6 +115,8 @@ void UpdateDrawFrame() {
             lua_call(L, 1, 1);
 
             auto art = (VectorArt *) lua_touserdata(L, -1);
+            lua_pop(L, 1);  // pop userdata
+            lua_pop(L, 1);  // pop lua ref
 
             if(art) {
 
@@ -121,6 +125,19 @@ void UpdateDrawFrame() {
                 rlScalef(entity->drawScale, entity->drawScale, entity->drawScale);
                 rlRotatef(entity->angle, 0, 1, 0);
                 DrawVectorArt(art);
+                rlPopMatrix();
+
+                rlPushMatrix();
+
+                rlTranslatef(entity->x - 2, 0, entity->y - 2);
+                rlScalef(0.1, 0.1, 0.1);
+                rlRotatef(entity->angle, 0, 1, 0);
+                rlRotatef(90, 1, 0, 0);
+                //printf("%d\n", entity->classID);
+                if(entity->classID == 3) {
+                    DrawText("Planet", 0, 0, 16, BLACK);
+
+                }
 //                DrawRectanglePro(Rectangle{entity->x, entity->y, 20, 20}, Vector2{10, 10}, entity->angle, RED);
                 rlPopMatrix();
             }
@@ -128,6 +145,7 @@ void UpdateDrawFrame() {
     }
     EndMode3D();
 
+    // DrawText(TextFormat("lua top: %d\n", lua_gettop(L)), 20, 20, 14, BLACK);
     EndDrawing();
 }
 

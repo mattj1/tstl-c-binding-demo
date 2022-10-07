@@ -1,6 +1,6 @@
 type ClassRef = abstract new (...args: any[]) => any;
 
-export function RegisterClass(this: void,
+export function BindInternalClass(this: void,
                               clz: ClassRef,
                               isInternalProp: IsInternalPropFunc,
                               getProp: GetPropFunc,

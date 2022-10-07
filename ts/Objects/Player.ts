@@ -1,5 +1,5 @@
 import {Base} from "./Base";
-import {SpawnEntity} from "../Entity";
+import {RegisterClass, SpawnEntity} from "../Entity";
 import {Shot} from "./Shot";
 
 export class Player extends Base {
@@ -55,3 +55,5 @@ export class Player extends Base {
        return _G.resources.player_ship;
     }
 }
+
+RegisterClass(Player);
