@@ -1,4 +1,5 @@
 import {BindInternalClass} from "../Bind";
+import {Drawable} from "../Drawable";
 
 export abstract class Base {
     // Internal properties
@@ -11,6 +12,7 @@ export abstract class Base {
     drawScale: number;
     classID: number;
 
+    drawable: Drawable;
 
     // TS properties
     foo: string = "Hello";

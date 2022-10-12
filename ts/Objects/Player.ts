@@ -1,11 +1,14 @@
 import {Base} from "./Base";
 import {RegisterClass, SpawnEntity} from "../Entity";
 import {Shot} from "./Shot";
+import {VectorDrawable} from "../Drawable";
 
 export class Player extends Base {
     constructor() {
         super();
         console.log("new player")
+
+        this.drawable = new VectorDrawable(_G.resources.player_ship);
     }
 
     PostInit() {
@@ -14,26 +17,26 @@ export class Player extends Base {
     }
 
     Update() {
-        if (IsKeyDown(263)) {
+        if (rl.IsKeyDown(263)) {
             this.angle += 2;
         }
 
-        if (IsKeyDown(262)) {
+        if (rl.IsKeyDown(262)) {
             // Right pressed
             this.angle -= 2;
         }
 
-        if (IsKeyDown(265)) {
+        if (rl.IsKeyDown(rl.KeyboardKey.KEY_UP)) {
             this.x += .2 * Math.cos(this.angle * Math.PI / 180.0);
             this.y -= .2 * Math.sin(this.angle * Math.PI / 180.0);
             // this.y -= 2;
         }
 
-        if (IsKeyDown(264)) {
+        if (rl.IsKeyDown(264)) {
             // this.y += 2;
         }
 
-        if(IsKeyPressed(32)) {
+        if(rl.IsKeyPressed(rl.KeyboardKey.KEY_SPACE)) {
             let shot: Shot = SpawnEntity(Shot);
             if(shot) {
                 shot.x = this.x;

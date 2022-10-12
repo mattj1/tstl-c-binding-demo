@@ -85,6 +85,13 @@ void UpdateDrawFrame() {
     BeginDrawing();
     ClearBackground(RAYWHITE);
     DrawText("Press arrow keys to move", 190, 200, 20, LIGHTGRAY);
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
+    lua_getfield(L, -1, "Draw");
+    lua_pushvalue(L, -2);
+    lua_call(L, 1, 0);
+    lua_pop(L, 1); // pop game ref
+
     entity_t *player = &entities[0];
     camera.position = Vector3{ player->x, 40.0f, player->y }; // Camera position
     camera.target = Vector3{ player->x, 0.0f, player->y };      // Camera looking at point
@@ -149,17 +156,34 @@ void UpdateDrawFrame() {
     EndDrawing();
 }
 
+int l_AllEntities(lua_State *L) {
+    int callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+//    printf("l_AllEntities, callback ref: %d\n", callback_ref);
+    // -1 = callback
+//    dumpstack(L);
+    for(int i = 0; i < MAX_ENTITY; i++) {
+        entity_t *entity = &entities[i];
+        if (entity->used) {
+            lua_rawgeti(L, LUA_REGISTRYINDEX, callback_ref);
+            lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref); // -2 = callback, -1 = ref
+            lua_call(L, 1, 1);
+//            printf("stack after call ");
+//            dumpstack(L);
+
+            lua_pop(L, 1);  // pop return value
+//            lua_pop(L, 1); // pop ref
+        }
+    }
+
+    luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
+    return 0;
+}
+
 int main(int argc, const char *argv[]) {
     L = luaL_newstate();
     luaL_openlibs(L);
     lua_pushcfunction(L, _traceback);
     assert(lua_gettop(L) == 1);
-
-    lua_pushcfunction(L, l_iskeydown);
-    lua_setglobal(L, "IsKeyDown");
-
-    lua_pushcfunction(L, l_iskeypressed);
-    lua_setglobal(L, "IsKeyPressed");
 
     entity_init(L);
 
@@ -175,12 +199,46 @@ int main(int argc, const char *argv[]) {
     lua_pop(L, 1); // get rid of package table from top of stack
 
     int result;
+
+
+    // Raylib bindings init =========================================
+
+    extern void init_raylib_bindings1(lua_State *L);
+    init_raylib_bindings1(L);
+
+    result = luaL_dofile(L, "resources/raylib_bindings.lua");
+    if (result) {
+        printf("load raylib_bindings.lua: %s\n", lua_tostring(L, -1));
+        exit(0);
+    }
+
+    lua_getglobal(L, "rl");
+    printf("rl table: "); dumpstack(L);
+    result = lua_pcall(L, 1, 0, 0);
+    if (result) {
+        printf("install raylib bindings: %s\n", lua_tostring(L, -1));
+        exit(0);
+    }
+
+    // =================================================
+
+
     result = luaL_dofile(L, "./resources/lua/main.lua");
 //    result = luaL_dofile(L, "./lua/main.lua");
     if (result) {
         printf("dofile main.lua: %s\n", lua_tostring(L, -1));
         exit(0);
     }
+
+    result = luaL_dofile(L, "resources/rl_test.lua");
+    if (result) {
+        printf("rl_test: %s\n", lua_tostring(L, -1));
+        exit(0);
+    }
+
+//    exit(0);
+
+    // Set up resources table
 
     lua_createtable(L, 0, 10);
     lua_setglobal(L, "resources");
@@ -192,15 +250,16 @@ int main(int argc, const char *argv[]) {
     lua_setfield(L, -2,  "shot");
     lua_pop(L, 1);
 
+    // Init game
+
+    lua_pushcfunction(L, l_AllEntities);
+    lua_setglobal(L, "AllEntities");
+
     lua_getglobal(L, "InitGame");
     lua_call(L, 0, 1);
 
     game_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     printf("Game ref: %d\n", game_ref);
-
-//    lua_pop(L, 3);
-    printf("???\n");
-    dumpstack(L);
 
 //    msgbuf_t buf{};
 //    buf.length = 123;
@@ -231,7 +290,6 @@ int main(int argc, const char *argv[]) {
 //    Model m = LoadModel("./untitled.obj");
 
 //    camera.position = Vector3{ 10.0f, 10.0f, 10.0f }; // Camera position
-
 
 //    Mesh mesh = GenMeshCube(1, 1, 1);
 //    Model m = LoadModelFromMesh(mesh);

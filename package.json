@@ -10,8 +10,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^18.7.23",
-    "typescript-to-lua": "^1.10.1",
-    "lua-types": "2.10.1"
+    "@types/node": "^18.8.3",
+    "lua-types": "2.10.1",
+    "ts-node": "^10.9.1",
+    "typescript-to-lua": "^1.10.1"
   }
 }

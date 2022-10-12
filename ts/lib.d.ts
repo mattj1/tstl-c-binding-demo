@@ -14,10 +14,14 @@ type RegisterClassFunc = (this: void,
 
 declare function AssignEntity(instance: any): void;
 
-declare function IsKeyDown(key: any): boolean;
-declare function IsKeyPressed(key: any): boolean;
-
 declare function MSG_ReadInt(msgbuf: any): number;
 
-
 declare function Internal_Init_Entity_Base(registerClassFunc: RegisterClassFunc, clz: any): void;
+
+declare class Base{}
+
+/** @noSelf **/
+type AllEntitiesCallback = (this: void, o: Base) => boolean
+
+/** @noSelf **/
+declare function AllEntities(callback: AllEntitiesCallback);

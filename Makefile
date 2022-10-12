@@ -250,7 +250,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
     # --preload-file resources   # specify a resources folder for data compilation
     # --source-map-base          # allow debugging in browser with source map
-    CFLAGS += -s USE_GLFW=3 -s TOTAL_MEMORY=67108864 -s FORCE_FILESYSTEM=1 --preload-file resources
+    CFLAGS += -s USE_GLFW=3 -s TOTAL_MEMORY=67108864 -s FORCE_FILESYSTEM=1 --preload-file resources -std=c++1z
 
 	LDFLAGS += -L../web
 
@@ -262,7 +262,10 @@ endif
 # Define include paths for required headers
 # NOTE: Several external required libraries (stb and others)
 INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/include -I$(RAYLIB_PATH)/src/external
+INCLUDE_PATHS += -I./contrib
 INCLUDE_PATHS += -I./contrib/lua/include
+INCLUDE_PATHS += -I./contrib/lua/include/lua
+INCLUDE_PATHS += -I./contrib/raylib-lua-sol
 INCLUDE_PATHS += -I../vendor/tmx/src
 INCLUDE_PATHS += -I/usr/local/opt/libxml2/include/libxml2
 
@@ -386,7 +389,8 @@ PROJECT_SOURCE_FILES ?= \
 												src/main.cpp \
 												src/util.cpp \
 												src/entity.cpp \
-												src/art.cpp
+												src/art.cpp \
+												src/raylib_bindings1.cpp
 
 PROJECT_SOURCE_FILES_C ?= \
 	
@@ -422,8 +426,8 @@ $(PROJECT_NAME): $(OBJS)
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
 %.o: %.cpp
-	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -std=c++14 -D$(PLATFORM)
-	
+	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+	#-std=c++14
 # Clean everything
 clean:
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
