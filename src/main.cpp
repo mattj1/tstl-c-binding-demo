@@ -51,11 +51,69 @@ static lua_State *L;
 static int game_ref;
 
 void UpdateDrawFrame() {
+
+//    HideCursor();
+//    DisableCursor();
+
+    Vector2 mousePos = GetMousePosition();
+    Vector2 v = GetMouseDelta();
+    int buttonsDown = 0, buttonsPressed = 0, buttonsReleased = 0;
+
+    for(int i = 0; i < 3; i++) {
+        if(IsMouseButtonDown(i)) buttonsDown |= 1 << i;
+        if(IsMouseButtonPressed(i)) buttonsPressed |= 1 << i;
+        if(IsMouseButtonReleased(i)) buttonsReleased |= 1 << i;
+    }
+
+    if(buttonsPressed != 0) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
+        lua_getfield(L, -1, "OnMouseDown");
+        lua_pushvalue(L, -2);
+        lua_pushinteger(L, GetMouseX());
+        lua_pushinteger(L, GetMouseY());
+        lua_pushinteger(L, buttonsPressed);
+        lua_call(L, 4, 0);
+    }
+
+    if(buttonsReleased != 0) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
+        lua_getfield(L, -1, "OnMouseUp");
+        lua_pushvalue(L, -2);
+        lua_pushinteger(L, GetMouseX());
+        lua_pushinteger(L, GetMouseY());
+        lua_pushinteger(L, buttonsReleased);
+        lua_call(L, 4, 0);
+    }
+
+    if(v.x != 0 || v.y != 0) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
+        lua_getfield(L, -1, "OnMouseMove");
+        lua_pushvalue(L, -2);
+        lua_pushinteger(L, GetMouseX());
+        lua_pushinteger(L, GetMouseY());
+        lua_pushnumber(L, v.x);
+        lua_pushnumber(L, v.y);
+        lua_pushinteger(L, buttonsDown);
+
+        lua_call(L, 6, 0);
+    }
+
+    float wheel = GetMouseWheelMove();
+    if (wheel != 0)
+    {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
+        lua_getfield(L, -1, "OnMouseWheel");
+        lua_pushvalue(L, -2);
+        lua_pushnumber(L, wheel);
+        lua_call(L, 2, 0);
+    }
+
     entity_t *entity;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, game_ref);
     lua_getfield(L, -1, "Update");
-    lua_call(L, 0, 0);
+    lua_pushvalue(L, -2);
+    lua_call(L, 1, 0);
 
     lua_pop(L, 1); // pop game ref
 
@@ -232,7 +290,10 @@ int main(int argc, const char *argv[]) {
 
     result = luaL_dofile(L, "resources/rl_test.lua");
     if (result) {
+
         printf("rl_test: %s\n", lua_tostring(L, -1));
+        _traceback(L);
+        printf("%s\n", lua_tostring(L, -1));
         exit(0);
     }
 
@@ -271,8 +332,8 @@ int main(int argc, const char *argv[]) {
 //    lua_pushlightuserdata(L, &buf);
 //    lua_call(L, 2, 0);
 
-    printf("Will InitWindow...");
     InitWindow(800, 600, "raylib [core] example - basic window");
+
 
 
 //    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)

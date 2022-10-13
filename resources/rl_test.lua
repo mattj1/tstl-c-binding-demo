@@ -12,16 +12,17 @@
 -- print(r3.x)
 print(rl)
 print(rl["@"])
-c = rl.Color:new()
+--
+-- v = rl.Vector2:new()
+-- v.x = 100
+-- print(v.x)
 
-c.r = 125
-c.g = 126
-c.b = 127
-c.a = 128
-print(c.r)
-print(c.g)
-print(c.b)
-print(c.a)
+camera = rl.Camera2D:new({
+    offset=rl.Vector2:new({x=111, y=222})
+    })
+camera.offset.x = 123
+print(camera.offset.x)
+print(camera.offset.y)
 
 -- print(rl.RAYWHITE)
 -- print(rl.RAYWHITE.r)

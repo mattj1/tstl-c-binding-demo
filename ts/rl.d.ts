@@ -21,6 +21,14 @@ declare namespace rl {
 		x: number;
 		y: number;
 	}
+	/** @customConstructor rl.Camera2D:new */
+	class Camera2D {
+		constructor(args?: {offset?: Vector2, target?: Vector2, rotation?: number, zoom?: number});
+		offset: Vector2;
+		target: Vector2;
+		rotation: number;
+		zoom: number;
+	}
 	const LIGHTGRAY: Color;
 	const BLUE: Color;
 	const RAYWHITE: Color;
@@ -136,12 +144,30 @@ declare namespace rl {
 		KEY_VOLUME_UP = 24,
 		KEY_VOLUME_DOWN = 25,
 	}
+	enum MouseButton {
+		MOUSE_BUTTON_LEFT = 0,
+		MOUSE_BUTTON_RIGHT = 1,
+		MOUSE_BUTTON_MIDDLE = 2,
+		MOUSE_BUTTON_SIDE = 3,
+		MOUSE_BUTTON_EXTRA = 4,
+		MOUSE_BUTTON_FORWARD = 5,
+		MOUSE_BUTTON_BACK = 6,
+	}
+	function BeginMode2D(camera: Camera2D): void;
+	function EndMode2D(): void;
+	function GetScreenToWorld2D(position: Vector2, camera: Camera2D): Vector2;
 	function IsKeyPressed(key: number): boolean;
 	function IsKeyDown(key: number): boolean;
 	function IsKeyReleased(key: number): boolean;
 	function IsKeyUp(key: number): boolean;
+	function IsMouseButtonDown(button: number): boolean;
+	function GetMousePosition(): Vector2;
+	function GetMouseDelta(): Vector2;
 	function DrawText(text: string, posX: number, posY: number, fontSize: number, color: Color): void;
+	function DrawCircle(centerX: number, centerY: number, radius: number, color: Color): void;
 	function DrawRectangle(posX: number, posY: number, width: number, height: number, color: Color): void;
 	function DrawRectangleLinesEx(rec: Rectangle, lineThick: number, color: Color): void;
 	function ColorAlpha(color: Color, alpha: number): Color;
+	function Vector2Scale(v: Vector2, scale: number): Vector2;
+	function Vector2Add(v1: Vector2, v2: Vector2): Vector2;
 }

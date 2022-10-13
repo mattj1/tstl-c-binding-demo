@@ -16,9 +16,9 @@ Rectangle.mt = {
     	 __index = function(t, k) return Rectangle.read_bindings[k](t) end,
     	 __newindex = function(t, k, v) Rectangle.write_bindings[k](t, v) end
     }
-
 function Rectangle:new(args)
-    o = {}
+	local o = {}
+
     setmetatable(o, Rectangle.mt)
 
     d = rl["@"]["Rectangle_Alloc"]()
@@ -48,9 +48,9 @@ Color.mt = {
     	 __index = function(t, k) return Color.read_bindings[k](t) end,
     	 __newindex = function(t, k, v) Color.write_bindings[k](t, v) end
     }
-
 function Color:new(args)
-    o = {}
+	local o = {}
+
     setmetatable(o, Color.mt)
 
     d = rl["@"]["Color_Alloc"]()
@@ -76,9 +76,9 @@ Vector2.mt = {
     	 __index = function(t, k) return Vector2.read_bindings[k](t) end,
     	 __newindex = function(t, k, v) Vector2.write_bindings[k](t, v) end
     }
-
 function Vector2:new(args)
-    o = {}
+	local o = {}
+
     setmetatable(o, Vector2.mt)
 
     d = rl["@"]["Vector2_Alloc"]()
@@ -91,6 +91,36 @@ function Vector2:new(args)
     return o
 end
 ____exports.Vector2 = Vector2
+-- Camera2D
+local Camera2D = {}
+Camera2D.prototype = {}
+Camera2D.read_bindings = {}
+Camera2D.write_bindings = {}
+Camera2D.read_bindings.rotation = rl["@"]["Camera2D_read_rotation"]
+Camera2D.write_bindings.rotation = rl["@"]["Camera2D_write_rotation"]
+Camera2D.read_bindings.zoom = rl["@"]["Camera2D_read_zoom"]
+Camera2D.write_bindings.zoom = rl["@"]["Camera2D_write_zoom"]
+Camera2D.mt = {
+    	 __index = function(t, k) return Camera2D.read_bindings[k](t) end,
+    	 __newindex = function(t, k, v) Camera2D.write_bindings[k](t, v) end
+    }
+function Camera2D:new(args)
+	local o = {}
+	o.offset = Vector2:new()
+	o.target = Vector2:new()
+
+    setmetatable(o, Camera2D.mt)
+
+    d = rl["@"]["Camera2D_Alloc"]()
+    rawset(o, "@", d)
+    if args then
+        for a0, a1 in pairs(args) do
+            o[a0] = a1
+        end
+     end
+    return o
+end
+____exports.Camera2D = Camera2D
 ____exports.LIGHTGRAY = Color:new({r = 200, g = 200, b = 200, a = 255})
 ____exports.BLUE = Color:new({r = 0, g = 0, b = 245, a = 255})
 ____exports.RAYWHITE = Color:new({r = 245, g = 245, b = 245, a = 255})
@@ -205,6 +235,15 @@ ____exports.KeyboardKey = {
 	KEY_MENU = 82,
 	KEY_VOLUME_UP = 24,
 	KEY_VOLUME_DOWN = 25,
+}
+____exports.MouseButton = {
+	MOUSE_BUTTON_LEFT = 0,
+	MOUSE_BUTTON_RIGHT = 1,
+	MOUSE_BUTTON_MIDDLE = 2,
+	MOUSE_BUTTON_SIDE = 3,
+	MOUSE_BUTTON_EXTRA = 4,
+	MOUSE_BUTTON_FORWARD = 5,
+	MOUSE_BUTTON_BACK = 6,
 }
 return ____exports
 end
