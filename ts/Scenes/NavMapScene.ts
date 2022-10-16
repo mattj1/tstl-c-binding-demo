@@ -34,15 +34,15 @@ export class NavMapScene extends Scene {
         for(let planet of Global.galaxy.planets) {
             if(planet.visible == 2) {
                 for(let p1 of planet.adj) {
-                    rl.DrawLine(planet.position.x, planet.position.y, p1.position.x, p1.position.y, rl.BLUE);
+                    rl.DrawLineV(planet.position, p1.position, rl.BLUE);
                 }
 
-                rl.DrawCircle(planet.position.x, planet.position.y, 10, rl.BLUE);
-
+                rl.DrawCircleV(planet.position, 10, rl.BLUE);
             }
 
             if(planet.visible == 1) {
-                rl.DrawCircle(planet.position.x, planet.position.y, 10, rl.LIGHTGRAY);
+
+                rl.DrawCircleV(planet.position, 10, rl.LIGHTGRAY);
             }
         }
 
