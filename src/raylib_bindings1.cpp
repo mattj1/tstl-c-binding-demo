@@ -16,8 +16,9 @@ void *load_member_struct(lua_State *L, int n, const char *member_name) {
  
     return _val;
 }
-Rectangle *load_struct_Rectangle(lua_State *L, int n) {
+Rectangle *load_struct_Rectangle(lua_State *L, int n, bool optional) {
 	if(!lua_istable(L, n)) {
+		if(optional) return nullptr;
 		printf("Error: Not a table\n"); exit(0);
 		return 0;
 	}
@@ -30,8 +31,9 @@ Rectangle *load_struct_Rectangle(lua_State *L, int n) {
 	lua_pop(L, 1); // pop the userdata
 	 return _val;
 }
-Color *load_struct_Color(lua_State *L, int n) {
+Color *load_struct_Color(lua_State *L, int n, bool optional) {
 	if(!lua_istable(L, n)) {
+		if(optional) return nullptr;
 		printf("Error: Not a table\n"); exit(0);
 		return 0;
 	}
@@ -44,8 +46,9 @@ Color *load_struct_Color(lua_State *L, int n) {
 	lua_pop(L, 1); // pop the userdata
 	 return _val;
 }
-Vector2 *load_struct_Vector2(lua_State *L, int n) {
+Vector2 *load_struct_Vector2(lua_State *L, int n, bool optional) {
 	if(!lua_istable(L, n)) {
+		if(optional) return nullptr;
 		printf("Error: Not a table\n"); exit(0);
 		return 0;
 	}
@@ -58,8 +61,9 @@ Vector2 *load_struct_Vector2(lua_State *L, int n) {
 	lua_pop(L, 1); // pop the userdata
 	 return _val;
 }
-Camera2D *load_struct_Camera2D(lua_State *L, int n) {
+Camera2D *load_struct_Camera2D(lua_State *L, int n, bool optional) {
 	if(!lua_istable(L, n)) {
+		if(optional) return nullptr;
 		printf("Error: Not a table\n"); exit(0);
 		return 0;
 	}
@@ -77,15 +81,13 @@ Camera2D *load_struct_Camera2D(lua_State *L, int n) {
 	 return _val;
 }
 static int Rectangle_read_x(lua_State *L) {
-	Rectangle * _userdata = load_struct_Rectangle(L, -1);
-
+Rectangle * _userdata = load_struct_Rectangle(L, -1, false);
 	lua_pushinteger(L, _userdata->x);
 	return 1;
 }
 
 static int Rectangle_write_x(lua_State *L) {
-	Rectangle * _userdata = load_struct_Rectangle(L, -2);
-
+Rectangle * _userdata = load_struct_Rectangle(L, -2, false);
 	int _x = lua_tointeger(L, -1);
 	_userdata->x = _x;
 
@@ -93,15 +95,13 @@ static int Rectangle_write_x(lua_State *L) {
 }
 
 static int Rectangle_read_y(lua_State *L) {
-	Rectangle * _userdata = load_struct_Rectangle(L, -1);
-
+Rectangle * _userdata = load_struct_Rectangle(L, -1, false);
 	lua_pushinteger(L, _userdata->y);
 	return 1;
 }
 
 static int Rectangle_write_y(lua_State *L) {
-	Rectangle * _userdata = load_struct_Rectangle(L, -2);
-
+Rectangle * _userdata = load_struct_Rectangle(L, -2, false);
 	int _y = lua_tointeger(L, -1);
 	_userdata->y = _y;
 
@@ -109,15 +109,13 @@ static int Rectangle_write_y(lua_State *L) {
 }
 
 static int Rectangle_read_width(lua_State *L) {
-	Rectangle * _userdata = load_struct_Rectangle(L, -1);
-
+Rectangle * _userdata = load_struct_Rectangle(L, -1, false);
 	lua_pushinteger(L, _userdata->width);
 	return 1;
 }
 
 static int Rectangle_write_width(lua_State *L) {
-	Rectangle * _userdata = load_struct_Rectangle(L, -2);
-
+Rectangle * _userdata = load_struct_Rectangle(L, -2, false);
 	int _width = lua_tointeger(L, -1);
 	_userdata->width = _width;
 
@@ -125,15 +123,13 @@ static int Rectangle_write_width(lua_State *L) {
 }
 
 static int Rectangle_read_height(lua_State *L) {
-	Rectangle * _userdata = load_struct_Rectangle(L, -1);
-
+Rectangle * _userdata = load_struct_Rectangle(L, -1, false);
 	lua_pushinteger(L, _userdata->height);
 	return 1;
 }
 
 static int Rectangle_write_height(lua_State *L) {
-	Rectangle * _userdata = load_struct_Rectangle(L, -2);
-
+Rectangle * _userdata = load_struct_Rectangle(L, -2, false);
 	int _height = lua_tointeger(L, -1);
 	_userdata->height = _height;
 
@@ -147,15 +143,13 @@ static int Rectangle_Alloc(lua_State *L) {
 }
 
 static int Color_read_r(lua_State *L) {
-	Color * _userdata = load_struct_Color(L, -1);
-
+Color * _userdata = load_struct_Color(L, -1, false);
 	lua_pushinteger(L, _userdata->r);
 	return 1;
 }
 
 static int Color_write_r(lua_State *L) {
-	Color * _userdata = load_struct_Color(L, -2);
-
+Color * _userdata = load_struct_Color(L, -2, false);
 	int _r = lua_tointeger(L, -1);
 	_userdata->r = _r;
 
@@ -163,15 +157,13 @@ static int Color_write_r(lua_State *L) {
 }
 
 static int Color_read_g(lua_State *L) {
-	Color * _userdata = load_struct_Color(L, -1);
-
+Color * _userdata = load_struct_Color(L, -1, false);
 	lua_pushinteger(L, _userdata->g);
 	return 1;
 }
 
 static int Color_write_g(lua_State *L) {
-	Color * _userdata = load_struct_Color(L, -2);
-
+Color * _userdata = load_struct_Color(L, -2, false);
 	int _g = lua_tointeger(L, -1);
 	_userdata->g = _g;
 
@@ -179,15 +171,13 @@ static int Color_write_g(lua_State *L) {
 }
 
 static int Color_read_b(lua_State *L) {
-	Color * _userdata = load_struct_Color(L, -1);
-
+Color * _userdata = load_struct_Color(L, -1, false);
 	lua_pushinteger(L, _userdata->b);
 	return 1;
 }
 
 static int Color_write_b(lua_State *L) {
-	Color * _userdata = load_struct_Color(L, -2);
-
+Color * _userdata = load_struct_Color(L, -2, false);
 	int _b = lua_tointeger(L, -1);
 	_userdata->b = _b;
 
@@ -195,15 +185,13 @@ static int Color_write_b(lua_State *L) {
 }
 
 static int Color_read_a(lua_State *L) {
-	Color * _userdata = load_struct_Color(L, -1);
-
+Color * _userdata = load_struct_Color(L, -1, false);
 	lua_pushinteger(L, _userdata->a);
 	return 1;
 }
 
 static int Color_write_a(lua_State *L) {
-	Color * _userdata = load_struct_Color(L, -2);
-
+Color * _userdata = load_struct_Color(L, -2, false);
 	int _a = lua_tointeger(L, -1);
 	_userdata->a = _a;
 
@@ -217,15 +205,13 @@ static int Color_Alloc(lua_State *L) {
 }
 
 static int Vector2_read_x(lua_State *L) {
-	Vector2 * _userdata = load_struct_Vector2(L, -1);
-
+Vector2 * _userdata = load_struct_Vector2(L, -1, false);
 	lua_pushnumber(L, _userdata->x);
 	return 1;
 }
 
 static int Vector2_write_x(lua_State *L) {
-	Vector2 * _userdata = load_struct_Vector2(L, -2);
-
+Vector2 * _userdata = load_struct_Vector2(L, -2, false);
 	float _x = lua_tonumber(L, -1);
 	_userdata->x = _x;
 
@@ -233,15 +219,13 @@ static int Vector2_write_x(lua_State *L) {
 }
 
 static int Vector2_read_y(lua_State *L) {
-	Vector2 * _userdata = load_struct_Vector2(L, -1);
-
+Vector2 * _userdata = load_struct_Vector2(L, -1, false);
 	lua_pushnumber(L, _userdata->y);
 	return 1;
 }
 
 static int Vector2_write_y(lua_State *L) {
-	Vector2 * _userdata = load_struct_Vector2(L, -2);
-
+Vector2 * _userdata = load_struct_Vector2(L, -2, false);
 	float _y = lua_tonumber(L, -1);
 	_userdata->y = _y;
 
@@ -255,15 +239,13 @@ static int Vector2_Alloc(lua_State *L) {
 }
 
 static int Camera2D_read_rotation(lua_State *L) {
-	Camera2D * _userdata = load_struct_Camera2D(L, -1);
-
+Camera2D * _userdata = load_struct_Camera2D(L, -1, false);
 	lua_pushnumber(L, _userdata->rotation);
 	return 1;
 }
 
 static int Camera2D_write_rotation(lua_State *L) {
-	Camera2D * _userdata = load_struct_Camera2D(L, -2);
-
+Camera2D * _userdata = load_struct_Camera2D(L, -2, false);
 	float _rotation = lua_tonumber(L, -1);
 	_userdata->rotation = _rotation;
 
@@ -271,15 +253,13 @@ static int Camera2D_write_rotation(lua_State *L) {
 }
 
 static int Camera2D_read_zoom(lua_State *L) {
-	Camera2D * _userdata = load_struct_Camera2D(L, -1);
-
+Camera2D * _userdata = load_struct_Camera2D(L, -1, false);
 	lua_pushnumber(L, _userdata->zoom);
 	return 1;
 }
 
 static int Camera2D_write_zoom(lua_State *L) {
-	Camera2D * _userdata = load_struct_Camera2D(L, -2);
-
+Camera2D * _userdata = load_struct_Camera2D(L, -2, false);
 	float _zoom = lua_tonumber(L, -1);
 	_userdata->zoom = _zoom;
 
@@ -293,8 +273,7 @@ static int Camera2D_Alloc(lua_State *L) {
 }
 
 static int l_BeginMode2D(lua_State *L) {
-		Camera2D * camera = load_struct_Camera2D(L, -1);
-
+	Camera2D * camera = load_struct_Camera2D(L, -1, false);
 	BeginMode2D(*camera);
 	;
 	return 1;
@@ -305,10 +284,8 @@ static int l_EndMode2D(lua_State *L) {
 	return 1;
 }
 static int l_GetScreenToWorld2D(lua_State *L) {
-		Vector2 * position = load_struct_Vector2(L, -2);
-
-		Camera2D * camera = load_struct_Camera2D(L, -1);
-
+	Vector2 * position = load_struct_Vector2(L, -2, false);
+	Camera2D * camera = load_struct_Camera2D(L, -1, false);
 	Vector2 returnVal = GetScreenToWorld2D(*position, *camera);
 		
         lua_getglobal(L, "rl");
@@ -400,9 +377,18 @@ static int l_DrawText(lua_State *L) {
 	int posX = lua_tointeger(L, -4);
 	int posY = lua_tointeger(L, -3);
 	int fontSize = lua_tointeger(L, -2);
-		Color * color = load_struct_Color(L, -1);
-
+	Color * color = load_struct_Color(L, -1, false);
 	DrawText(text, posX, posY, fontSize, *color);
+	;
+	return 1;
+}
+static int l_DrawLine(lua_State *L) {
+	float startPosX = lua_tonumber(L, -5);
+	float startPosY = lua_tonumber(L, -4);
+	float endPosX = lua_tonumber(L, -3);
+	float endPosY = lua_tonumber(L, -2);
+	Color * color = load_struct_Color(L, -1, false);
+	DrawLine(startPosX, startPosY, endPosX, endPosY, *color);
 	;
 	return 1;
 }
@@ -410,8 +396,7 @@ static int l_DrawCircle(lua_State *L) {
 	float centerX = lua_tonumber(L, -4);
 	float centerY = lua_tonumber(L, -3);
 	float radius = lua_tonumber(L, -2);
-		Color * color = load_struct_Color(L, -1);
-
+	Color * color = load_struct_Color(L, -1, false);
 	DrawCircle(centerX, centerY, radius, *color);
 	;
 	return 1;
@@ -421,25 +406,31 @@ static int l_DrawRectangle(lua_State *L) {
 	int posY = lua_tointeger(L, -4);
 	int width = lua_tointeger(L, -3);
 	int height = lua_tointeger(L, -2);
-		Color * color = load_struct_Color(L, -1);
-
+	Color * color = load_struct_Color(L, -1, false);
 	DrawRectangle(posX, posY, width, height, *color);
 	;
 	return 1;
 }
 static int l_DrawRectangleLinesEx(lua_State *L) {
-		Rectangle * rec = load_struct_Rectangle(L, -3);
-
+	Rectangle * rec = load_struct_Rectangle(L, -3, false);
 	float lineThick = lua_tonumber(L, -2);
-		Color * color = load_struct_Color(L, -1);
-
+	Color * color = load_struct_Color(L, -1, false);
 	DrawRectangleLinesEx(*rec, lineThick, *color);
 	;
 	return 1;
 }
+static int l_CheckCollisionLines(lua_State *L) {
+	Vector2 * startPos1 = load_struct_Vector2(L, -5, false);
+	Vector2 * endPos1 = load_struct_Vector2(L, -4, false);
+	Vector2 * startPos2 = load_struct_Vector2(L, -3, false);
+	Vector2 * endPos2 = load_struct_Vector2(L, -2, false);
+		Vector2 * collisionPoint = load_struct_Vector2(L, -1, true);
+	bool returnVal = CheckCollisionLines(*startPos1, *endPos1, *startPos2, *endPos2, collisionPoint);
+	lua_pushboolean(L, returnVal);
+	return 1;
+}
 static int l_ColorAlpha(lua_State *L) {
-		Color * color = load_struct_Color(L, -2);
-
+	Color * color = load_struct_Color(L, -2, false);
 	float alpha = lua_tonumber(L, -1);
 	Color returnVal = ColorAlpha(*color, alpha);
 		
@@ -460,8 +451,7 @@ static int l_ColorAlpha(lua_State *L) {
 	return 1;
 }
 static int l_Vector2Scale(lua_State *L) {
-		Vector2 * v = load_struct_Vector2(L, -2);
-
+	Vector2 * v = load_struct_Vector2(L, -2, false);
 	float scale = lua_tonumber(L, -1);
 	Vector2 returnVal = Vector2Scale(*v, scale);
 		
@@ -482,10 +472,8 @@ static int l_Vector2Scale(lua_State *L) {
 	return 1;
 }
 static int l_Vector2Add(lua_State *L) {
-		Vector2 * v1 = load_struct_Vector2(L, -2);
-
-		Vector2 * v2 = load_struct_Vector2(L, -1);
-
+	Vector2 * v1 = load_struct_Vector2(L, -2, false);
+	Vector2 * v2 = load_struct_Vector2(L, -1, false);
 	Vector2 returnVal = Vector2Add(*v1, *v2);
 		
         lua_getglobal(L, "rl");
@@ -502,6 +490,20 @@ static int l_Vector2Add(lua_State *L) {
         
         lua_pop(L, 1); // pop userdata
         ;
+	return 1;
+}
+static int l_Vector2Distance(lua_State *L) {
+	Vector2 * v1 = load_struct_Vector2(L, -2, false);
+	Vector2 * v2 = load_struct_Vector2(L, -1, false);
+	float returnVal = Vector2Distance(*v1, *v2);
+	lua_pushnumber(L, returnVal);
+	return 1;
+}
+static int l_Vector2DistanceSqr(lua_State *L) {
+	Vector2 * v1 = load_struct_Vector2(L, -2, false);
+	Vector2 * v2 = load_struct_Vector2(L, -1, false);
+	float returnVal = Vector2DistanceSqr(*v1, *v2);
+	lua_pushnumber(L, returnVal);
 	return 1;
 }
 void init_raylib_bindings1(lua_State *L) {
@@ -588,18 +590,26 @@ void init_raylib_bindings1(lua_State *L) {
 	lua_setfield(L, -2, "GetMouseDelta");
 	lua_pushcfunction(L, l_DrawText);
 	lua_setfield(L, -2, "DrawText");
+	lua_pushcfunction(L, l_DrawLine);
+	lua_setfield(L, -2, "DrawLine");
 	lua_pushcfunction(L, l_DrawCircle);
 	lua_setfield(L, -2, "DrawCircle");
 	lua_pushcfunction(L, l_DrawRectangle);
 	lua_setfield(L, -2, "DrawRectangle");
 	lua_pushcfunction(L, l_DrawRectangleLinesEx);
 	lua_setfield(L, -2, "DrawRectangleLinesEx");
+	lua_pushcfunction(L, l_CheckCollisionLines);
+	lua_setfield(L, -2, "CheckCollisionLines");
 	lua_pushcfunction(L, l_ColorAlpha);
 	lua_setfield(L, -2, "ColorAlpha");
 	lua_pushcfunction(L, l_Vector2Scale);
 	lua_setfield(L, -2, "Vector2Scale");
 	lua_pushcfunction(L, l_Vector2Add);
 	lua_setfield(L, -2, "Vector2Add");
+	lua_pushcfunction(L, l_Vector2Distance);
+	lua_setfield(L, -2, "Vector2Distance");
+	lua_pushcfunction(L, l_Vector2DistanceSqr);
+	lua_setfield(L, -2, "Vector2DistanceSqr");
 	lua_setglobal(L, "rl");
 }
 

@@ -2,6 +2,9 @@ import Rectangle = rl.Rectangle;
 import {Scene} from "./Scene";
 import {Global} from "../Global";
 import Camera2D = rl.Camera2D;
+import Vector2 = rl.Vector2;
+
+
 
 export class NavMapScene extends Scene {
     r: Rectangle;
@@ -29,8 +32,29 @@ export class NavMapScene extends Scene {
 
         rl.BeginMode2D(this.camera);
         for(let planet of Global.galaxy.planets) {
-            rl.DrawCircle(planet.x, planet.y, 10, rl.BLUE);
+            if(planet.visible == 2) {
+                for(let p1 of planet.adj) {
+                    rl.DrawLine(planet.position.x, planet.position.y, p1.position.x, p1.position.y, rl.BLUE);
+                }
+
+                rl.DrawCircle(planet.position.x, planet.position.y, 10, rl.BLUE);
+
+            }
+
+            if(planet.visible == 1) {
+                rl.DrawCircle(planet.position.x, planet.position.y, 10, rl.LIGHTGRAY);
+            }
         }
+
+        // for(let i = 0; i < Global.galaxy.planets.length; i++) {
+        //     for (let j = 0; j < Global.galaxy.planets.length; j++) {
+        //         let planet0 = Global.galaxy.planets[i];
+        //         let planet1 = Global.galaxy.planets[j];
+        //         if (Global.galaxy.PathExists(planet0, planet1)) {
+        //             // rl.DrawLine(planet0.position.x, planet0.position.y, planet1.position.x, planet1.position.y, rl.BLUE);
+        //         }
+        //     }
+        // }
         rl.EndMode2D();
     }
 

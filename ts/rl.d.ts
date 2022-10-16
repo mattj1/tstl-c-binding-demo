@@ -164,10 +164,14 @@ declare namespace rl {
 	function GetMousePosition(): Vector2;
 	function GetMouseDelta(): Vector2;
 	function DrawText(text: string, posX: number, posY: number, fontSize: number, color: Color): void;
+	function DrawLine(startPosX: number, startPosY: number, endPosX: number, endPosY: number, color: Color): void;
 	function DrawCircle(centerX: number, centerY: number, radius: number, color: Color): void;
 	function DrawRectangle(posX: number, posY: number, width: number, height: number, color: Color): void;
 	function DrawRectangleLinesEx(rec: Rectangle, lineThick: number, color: Color): void;
+	function CheckCollisionLines(startPos1: Vector2, endPos1: Vector2, startPos2: Vector2, endPos2: Vector2, collisionPoint?: Vector2): boolean;
 	function ColorAlpha(color: Color, alpha: number): Color;
 	function Vector2Scale(v: Vector2, scale: number): Vector2;
 	function Vector2Add(v1: Vector2, v2: Vector2): Vector2;
+	function Vector2Distance(v1: Vector2, v2: Vector2): number;
+	function Vector2DistanceSqr(v1: Vector2, v2: Vector2): number;
 }

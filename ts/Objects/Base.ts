@@ -4,15 +4,22 @@ import {Drawable} from "../Drawable";
 export abstract class Base {
     // Internal properties
 
+    // @ts-ignore
     x: number;
+    // @ts-ignore
     y: number;
+    // @ts-ignore
     angle: number;
+    // @ts-ignore
     index: number;
+    // @ts-ignore
     active: boolean;
+    // @ts-ignore
     drawScale: number;
+    // @ts-ignore
     classID: number;
 
-    drawable: Drawable;
+    drawable: Drawable = null;
 
     // TS properties
     foo: string = "Hello";

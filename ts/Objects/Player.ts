@@ -38,7 +38,7 @@ export class Player extends Base {
 
         if(rl.IsKeyPressed(rl.KeyboardKey.KEY_SPACE)) {
             let shot: Shot = SpawnEntity(Shot);
-            if(shot) {
+            if(shot != null) {
                 shot.x = this.x;
                 shot.y = this.y;
                 shot.angle = this.angle;
