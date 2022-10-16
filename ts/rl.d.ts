@@ -1,11 +1,16 @@
 declare namespace rl {
-	/** @customConstructor rl.Rectangle:new */
-	class Rectangle {
-		constructor(args?: {x?: number, y?: number, width?: number, height?: number});
+	/** @customConstructor rl.Vector2:new */
+	class Vector2 {
+		constructor(args?: {x?: number, y?: number});
 		x: number;
 		y: number;
-		width: number;
-		height: number;
+	}
+	/** @customConstructor rl.Vector3:new */
+	class Vector3 {
+		constructor(args?: {x?: number, y?: number, z?: number});
+		x: number;
+		y: number;
+		z: number;
 	}
 	/** @customConstructor rl.Color:new */
 	class Color {
@@ -15,11 +20,13 @@ declare namespace rl {
 		b: number;
 		a: number;
 	}
-	/** @customConstructor rl.Vector2:new */
-	class Vector2 {
-		constructor(args?: {x?: number, y?: number});
+	/** @customConstructor rl.Rectangle:new */
+	class Rectangle {
+		constructor(args?: {x?: number, y?: number, width?: number, height?: number});
 		x: number;
 		y: number;
+		width: number;
+		height: number;
 	}
 	/** @customConstructor rl.Camera2D:new */
 	class Camera2D {
@@ -153,25 +160,70 @@ declare namespace rl {
 		MOUSE_BUTTON_FORWARD = 5,
 		MOUSE_BUTTON_BACK = 6,
 	}
-	function BeginMode2D(camera: Camera2D): void;
-	function EndMode2D(): void;
-	function GetScreenToWorld2D(position: Vector2, camera: Camera2D): Vector2;
 	function IsKeyPressed(key: number): boolean;
 	function IsKeyDown(key: number): boolean;
 	function IsKeyReleased(key: number): boolean;
 	function IsKeyUp(key: number): boolean;
+	function SetExitKey(key: number): void;
+	function GetKeyPressed(): number;
+	function GetCharPressed(): number;
+	function ClearBackground(color: Color): void;
+	function BeginDrawing(): void;
+	function EndDrawing(): void;
+	function BeginMode2D(camera: Camera2D): void;
+	function EndMode2D(): void;
+	function IsMouseButtonPressed(button: number): boolean;
 	function IsMouseButtonDown(button: number): boolean;
+	function IsMouseButtonReleased(button: number): boolean;
+	function IsMouseButtonUp(button: number): boolean;
+	function GetMouseX(): number;
+	function GetMouseY(): number;
 	function GetMousePosition(): Vector2;
 	function GetMouseDelta(): Vector2;
-	function DrawText(text: string, posX: number, posY: number, fontSize: number, color: Color): void;
+	function DrawPixel(posX: number, posY: number, color: Color): void;
+	function DrawPixelV(position: Vector2, color: Color): void;
 	function DrawLine(startPosX: number, startPosY: number, endPosX: number, endPosY: number, color: Color): void;
+	function DrawLineV(startPos: Vector2, endPos: Vector2, color: Color): void;
+	function DrawLineEx(startPos: Vector2, endPos: Vector2, thick: number, color: Color): void;
+	function DrawLineBezier(startPos: Vector2, endPos: Vector2, thick: number, color: Color): void;
+	function DrawLineBezierQuad(startPos: Vector2, endPos: Vector2, controlPos: Vector2, thick: number, color: Color): void;
+	function DrawLineBezierCubic(startPos: Vector2, endPos: Vector2, startControlPos: Vector2, endControlPos: Vector2, thick: number, color: Color): void;
+	function DrawLineStrip(points: Vector2, pointCount: number, color: Color): void;
 	function DrawCircle(centerX: number, centerY: number, radius: number, color: Color): void;
+	function DrawCircleSector(center: Vector2, radius: number, startAngle: number, endAngle: number, segments: number, color: Color): void;
+	function DrawCircleSectorLines(center: Vector2, radius: number, startAngle: number, endAngle: number, segments: number, color: Color): void;
+	function DrawCircleGradient(centerX: number, centerY: number, radius: number, color1: Color, color2: Color): void;
+	function DrawCircleV(center: Vector2, radius: number, color: Color): void;
+	function DrawCircleLines(centerX: number, centerY: number, radius: number, color: Color): void;
+	function DrawEllipse(centerX: number, centerY: number, radiusH: number, radiusV: number, color: Color): void;
+	function DrawEllipseLines(centerX: number, centerY: number, radiusH: number, radiusV: number, color: Color): void;
+	function DrawRing(center: Vector2, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number, segments: number, color: Color): void;
+	function DrawRingLines(center: Vector2, innerRadius: number, outerRadius: number, startAngle: number, endAngle: number, segments: number, color: Color): void;
 	function DrawRectangle(posX: number, posY: number, width: number, height: number, color: Color): void;
+	function DrawRectangleV(position: Vector2, size: Vector2, color: Color): void;
+	function DrawRectangleRec(rec: Rectangle, color: Color): void;
+	function DrawRectanglePro(rec: Rectangle, origin: Vector2, rotation: number, color: Color): void;
+	function DrawRectangleGradientV(posX: number, posY: number, width: number, height: number, color1: Color, color2: Color): void;
+	function DrawRectangleGradientH(posX: number, posY: number, width: number, height: number, color1: Color, color2: Color): void;
+	function DrawRectangleGradientEx(rec: Rectangle, col1: Color, col2: Color, col3: Color, col4: Color): void;
+	function DrawRectangleLines(posX: number, posY: number, width: number, height: number, color: Color): void;
 	function DrawRectangleLinesEx(rec: Rectangle, lineThick: number, color: Color): void;
-	function CheckCollisionLines(startPos1: Vector2, endPos1: Vector2, startPos2: Vector2, endPos2: Vector2, collisionPoint?: Vector2): boolean;
+	function DrawRectangleRounded(rec: Rectangle, roundness: number, segments: number, color: Color): void;
+	function DrawRectangleRoundedLines(rec: Rectangle, roundness: number, segments: number, lineThick: number, color: Color): void;
+	function DrawText(text: string, posX: number, posY: number, fontSize: number, color: Color): void;
+	function CheckCollisionRecs(rec1: Rectangle, rec2: Rectangle): boolean;
+	function CheckCollisionCircles(center1: Vector2, radius1: number, center2: Vector2, radius2: number): boolean;
+	function CheckCollisionCircleRec(center: Vector2, radius: number, rec: Rectangle): boolean;
+	function CheckCollisionPointRec(point: Vector2, rec: Rectangle): boolean;
+	function CheckCollisionPointCircle(point: Vector2, center: Vector2, radius: number): boolean;
+	function CheckCollisionPointTriangle(point: Vector2, p1: Vector2, p2: Vector2, p3: Vector2): boolean;
+	function CheckCollisionLines(startPos1: Vector2, endPos1: Vector2, startPos2: Vector2, endPos2: Vector2, collisionPoint: Vector2): boolean;
+	function CheckCollisionPointLine(point: Vector2, p1: Vector2, p2: Vector2, threshold: number): boolean;
+	function GetCollisionRec(rec1: Rectangle, rec2: Rectangle): Rectangle;
 	function ColorAlpha(color: Color, alpha: number): Color;
-	function Vector2Scale(v: Vector2, scale: number): Vector2;
-	function Vector2Add(v1: Vector2, v2: Vector2): Vector2;
+	function GetScreenToWorld2D(position: Vector2, camera: Camera2D): Vector2;
 	function Vector2Distance(v1: Vector2, v2: Vector2): number;
 	function Vector2DistanceSqr(v1: Vector2, v2: Vector2): number;
+	function Vector2Add(v1: Vector2, v2: Vector2): Vector2;
+	function Vector2Scale(v: Vector2, scale: number): Vector2;
 }
