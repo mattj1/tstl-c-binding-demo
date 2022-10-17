@@ -1,3 +1,5 @@
+import Vector2 = rl.Vector2;
+
 type IsInternalPropFunc = (k: string) => boolean;
 type GetPropFunc = (k: string, userdata: any) => any;
 type SetPropFunc = (userdata: any, k: string, v: any) => void;
@@ -25,3 +27,5 @@ type AllEntitiesCallback = (this: void, o: Base) => boolean
 
 /** @noSelf **/
 declare function AllEntities(callback: AllEntitiesCallback);
+
+declare function DrawSurroundingRectangle(pt: Vector2, width: number, height: number, color: rl.Color);

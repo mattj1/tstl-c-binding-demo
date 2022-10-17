@@ -13,7 +13,7 @@ if (WIN32)
 
     link_directories(contrib/raylib/lib/x86 contrib/lua/lib/x86 contrib/luajit/lib/x86)
     set(LUA_LIBRARIES lua54.lib)
-
+    set(WIN32_LIBRARIES winmm)
     #set(LUA_LIBRARIES lua51.lib)
 else ()
     set(LUA_INCLUDE_DIR /usr/local/include)
@@ -42,7 +42,7 @@ add_executable(luatest src/main.cpp
         src/raylib_bindings1.cpp
         )
 
-target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES} raylib ) #winmm
+target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES} raylib ${WIN32_LIBRARIES}) #winmm
 
 # Checks if OSX and links appropriate frameworks (only required on MacOS)
 if (APPLE)

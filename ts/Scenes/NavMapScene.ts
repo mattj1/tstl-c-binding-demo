@@ -3,6 +3,7 @@ import {Scene} from "./Scene";
 import {Global} from "../Global";
 import Camera2D = rl.Camera2D;
 import Vector2 = rl.Vector2;
+import {Galaxy, Planet} from "../Galaxy";
 
 
 
@@ -11,9 +12,11 @@ export class NavMapScene extends Scene {
     r2: Rectangle;
     camera: Camera2D;
 
+    selectedPlanet: Planet = null;
+
     constructor() {
         super();
-        this.r = new Rectangle({x:0, y:0, width:64, height:64});
+        this.r = new Rectangle({x:0, y:0, width:800, height:600});
         this.r2 = new Rectangle({x:40, y:40, width:64, height:64});
         this.camera = new Camera2D();
         this.camera.zoom = 0.75;
@@ -21,14 +24,20 @@ export class NavMapScene extends Scene {
     }
 
     Update() {
+        if(rl.IsKeyPressed(rl.KeyboardKey.KEY_A)) {
+            Global.playerController.SetDestinationPlanet(this.selectedPlanet);
+        }
 
+        if(rl.IsKeyPressed(rl.KeyboardKey.KEY_ESCAPE)) {
+            Global.game.RemoveScene(this);
+        }
     }
 
     Draw() {
-        rl.DrawText(`*** Nav map ***`, 128, 128, 24, rl.BLUE);
 
-        rl.DrawRectangle(this.r.x, this.r.y, this.r.width, this.r.height, rl.ColorAlpha(rl.LIGHTGRAY, 0.5))
-        rl.DrawRectangleLinesEx(this.r, 3, rl.BLUE)
+        rl.DrawRectangle(this.r.x, this.r.y, this.r.width, this.r.height, rl.ColorAlpha(rl.BLACK, 0.8))
+        rl.DrawText(`*** Nav map ***`, 128, 128, 24, rl.BLUE);
+        // rl.DrawRectangleLinesEx(this.r, 3, rl.BLUE)
 
         rl.BeginMode2D(this.camera);
         for(let planet of Global.galaxy.planets) {
@@ -37,33 +46,42 @@ export class NavMapScene extends Scene {
                     rl.DrawLineV(planet.position, p1.position, rl.BLUE);
                 }
 
-                rl.DrawCircleV(planet.position, 10, rl.BLUE);
+                rl.DrawCircleV(planet.position, 8, rl.BLUE);
             }
 
             if(planet.visible == 1) {
-
-                rl.DrawCircleV(planet.position, 10, rl.LIGHTGRAY);
+                rl.DrawCircleV(planet.position, 8, rl.LIGHTGRAY);
             }
         }
 
-        // for(let i = 0; i < Global.galaxy.planets.length; i++) {
-        //     for (let j = 0; j < Global.galaxy.planets.length; j++) {
-        //         let planet0 = Global.galaxy.planets[i];
-        //         let planet1 = Global.galaxy.planets[j];
-        //         if (Global.galaxy.PathExists(planet0, planet1)) {
-        //             // rl.DrawLine(planet0.position.x, planet0.position.y, planet1.position.x, planet1.position.y, rl.BLUE);
-        //         }
-        //     }
-        // }
+        let showSelectedPlanet = this.selectedPlanet;
+        if(showSelectedPlanet == null) {
+            showSelectedPlanet = Global.planet;
+        }
+        DrawSurroundingRectangle(showSelectedPlanet.position, 40, 40, rl.BLACK);
+
+        rl.DrawCircleSectorLines(Global.planet.position, 20, 0, 360, 20, rl.BLUE);
         rl.EndMode2D();
     }
 
     OnMouseDown(x: number, y: number, buttons: number) {
+        if(rl.IsMouseButtonPressed(rl.MouseButton.MOUSE_BUTTON_LEFT)) {
+            let mouseWorldPos = rl.GetScreenToWorld2D(rl.GetMousePosition(), this.camera);
 
+            for(let p of Global.galaxy.planets) {
+                if(p.visible == 0)
+                    continue;
+
+                if(rl.Vector2DistanceSqr(p.position, mouseWorldPos) < 20 * 20) {
+                    this.selectedPlanet = p;
+                    break;
+                }
+            }
+        }
     }
 
     OnMouseMove(x: number, y: number, dx: number, dy: number, buttons: number) {
-        if (rl.IsMouseButtonDown(rl.MouseButton.MOUSE_BUTTON_LEFT))
+        if (rl.IsMouseButtonDown(rl.MouseButton.MOUSE_BUTTON_RIGHT))
         {
             let delta = rl.GetMouseDelta();
             delta = rl.Vector2Scale(delta, -1.0/this.camera.zoom);

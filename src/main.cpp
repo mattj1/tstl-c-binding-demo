@@ -52,9 +52,6 @@ static int game_ref;
 
 void UpdateDrawFrame() {
 
-//    HideCursor();
-//    DisableCursor();
-
     Vector2 mousePos = GetMousePosition();
     Vector2 v = GetMouseDelta();
     int buttonsDown = 0, buttonsPressed = 0, buttonsReleased = 0;
@@ -236,6 +233,37 @@ int l_AllEntities(lua_State *L) {
     luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
     return 0;
 }
+extern Vector2 *load_struct_Vector2(lua_State *L, int n, bool optional);
+extern Color *load_struct_Color(lua_State *L, int n, bool optional);
+
+int l_DrawSurroundingRectangle(lua_State *L) {
+    // Vector, width, height, color...
+    Vector2 *pos = load_struct_Vector2(L, -4, false);
+    float width = lua_tonumber(L, -3);
+    float height = lua_tonumber(L, -2);
+    Color *color = load_struct_Color(L, -1, false);
+
+    Vector2 p0 = *pos;
+    p0.x -= width / 2;
+    p0.y -= height / 2;
+
+    DrawLineV(p0, Vector2{p0.x + 8, p0.y}, *color);
+    DrawLineV(p0, Vector2{p0.x, p0.y + 8}, *color);
+
+    p0.x += width;
+
+    DrawLineV(p0, Vector2{p0.x - 8, p0.y}, *color);
+    DrawLineV(p0, Vector2{p0.x, p0.y + 8}, *color);
+
+    p0.y += height;
+    DrawLineV(p0, Vector2{p0.x - 8, p0.y}, *color);
+    DrawLineV(p0, Vector2{p0.x, p0.y - 8}, *color);
+
+    p0.x -= width;
+    DrawLineV(p0, Vector2{p0.x + 8, p0.y}, *color);
+    DrawLineV(p0, Vector2{p0.x, p0.y - 8}, *color);
+    return 0;
+}
 
 int main(int argc, const char *argv[]) {
     L = luaL_newstate();
@@ -315,6 +343,9 @@ int main(int argc, const char *argv[]) {
 
     lua_pushcfunction(L, l_AllEntities);
     lua_setglobal(L, "AllEntities");
+
+    lua_pushcfunction(L, l_DrawSurroundingRectangle);
+    lua_setglobal(L, "DrawSurroundingRectangle");
 
     lua_getglobal(L, "InitGame");
     lua_call(L, 0, 1);

@@ -4,6 +4,9 @@ import {Shot} from "./Shot";
 import {VectorDrawable} from "../Drawable";
 
 export class Player extends Base {
+
+    velocity: Vector2 = new Vector2();
+
     constructor() {
         super();
         console.log("new player")
@@ -27,8 +30,8 @@ export class Player extends Base {
         }
 
         if (rl.IsKeyDown(rl.KeyboardKey.KEY_UP)) {
-            this.x += .2 * Math.cos(this.angle * Math.PI / 180.0);
-            this.y -= .2 * Math.sin(this.angle * Math.PI / 180.0);
+            this.velocity.x += .01 * Math.cos(this.angle * Math.PI / 180.0);
+            this.velocity.y -= .01 * Math.sin(this.angle * Math.PI / 180.0);
             // this.y -= 2;
         }
 
@@ -44,6 +47,12 @@ export class Player extends Base {
                 shot.angle = this.angle;
             }
         }
+
+        this.velocity.x *= 0.98;
+        this.velocity.y *= 0.98;
+
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
     }
 
     public ReadFromSnapshot(msgbuf: any) {

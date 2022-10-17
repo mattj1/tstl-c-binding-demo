@@ -1,4 +1,5 @@
 import Vector2 = rl.Vector2;
+import {Global} from "./Global";
 
 
 export class Planet {
@@ -112,13 +113,6 @@ export class Galaxy {
         }
 
         console.log("Generating Galaxy Done");
-
-        let p = this.planets[Math.round(Math.random() * this.planets.length)];
-        p.visible = 2;
-
-        for(let p1 of p.adj) {
-            p1.visible = 1;
-        }
     }
 
 
@@ -144,5 +138,17 @@ export class Galaxy {
 
     PathExists(planet0: Planet, planet1: Planet): boolean {
         return this.PathExistsIndex(planet0.index, planet1.index);
+    }
+
+    ExploreSystem(planet: Planet) {
+        if(planet == null)
+            return;
+
+        planet.visible = 2;
+
+        for(let p1 of planet.adj) {
+            if(p1.visible == 0)
+                p1.visible = 1;
+        }
     }
 }

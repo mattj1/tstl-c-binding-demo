@@ -7,21 +7,22 @@ import {Scene} from "./Scenes/Scene";
 import {GameScene} from "./Scenes/GameScene";
 import {Global} from "./Global";
 import {Galaxy} from "./Galaxy";
+import {PlayerController} from "./PlayerController";
 
 export class Game {
 
     purpleColor: rl.Color;
 
-    navMapScene: NavMapScene;
-    gameScene: GameScene;
-
     scenes: Array<Scene> = [];
 
     constructor() {
-        console.log("New Game")
-
+        Global.game = this;
         Global.player = SpawnEntity(Player);
         Global.galaxy = new Galaxy();
+        Global.planet = Global.galaxy.planets[Math.round(Math.random() * Global.galaxy.planets.length)];
+        Global.galaxy.ExploreSystem(Global.planet);
+
+        Global.playerController = new PlayerController();
 
         let planet0: Planet = SpawnEntity(Planet);
         planet0.x = 20;
@@ -29,19 +30,32 @@ export class Game {
 
         this.purpleColor = new rl.Color({r: 255, g: 0, b: 128, a: 255});
 
-        this.gameScene = new GameScene();
-        this.navMapScene = new NavMapScene();
+        this.AddSceneAndFocus(new GameScene());
 
-        this.scenes.push(this.gameScene);
-        this.scenes.push(this.navMapScene);
+
+    }
+
+    AddSceneAndFocus(scene: Scene) {
+        if(this.scenes.length > 0) {
+            this.scenes[this.scenes.length - 1].isFocused = false;
+        }
+
+        this.scenes.push(scene);
+        scene.isFocused = true;
     }
 
     OnMouseDown(x: number, y: number, buttons: number) {
         // console.log("OnMouseDown", x,y, buttons);
+        for(let s of this.scenes) {
+            s.OnMouseDown(x, y, buttons);
+        }
     }
 
     OnMouseUp(x: number, y: number, buttons: number) {
         // console.log("OnMouseUp", x,y, buttons);
+        for(let s of this.scenes) {
+            s.OnMouseUp(x, y, buttons);
+        }
     }
 
     OnMouseMove(x: number, y: number, dx: number, dy: number, buttons: number) {
@@ -84,5 +98,10 @@ export class Game {
         for(let s of this.scenes) {
             s.Draw();
         }
+
+    }
+
+    RemoveScene(param: Scene) {
+       this.scenes = this.scenes.filter(value => value != param);
     }
 }

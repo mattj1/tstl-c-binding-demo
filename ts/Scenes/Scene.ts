@@ -1,8 +1,11 @@
 export abstract class Scene {
     active: boolean;
 
+    isFocused: boolean;
+
     constructor() {
         this.active = true;
+        this.isFocused = false;
     }
 
     abstract OnMouseDown(x: number, y: number, buttons: number): void;
