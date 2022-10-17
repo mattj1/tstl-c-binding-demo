@@ -46,6 +46,13 @@ void DrawVectorArt(VectorArt *art) {
     rlEnd();
 }
 
+int l_DrawVectorArt(lua_State *L) {
+    auto art = (VectorArt *) lua_touserdata(L, -1);
+    DrawVectorArt(art);
+
+    return 0;
+}
+
 Camera camera = { 0 };
 static lua_State *L;
 static int game_ref;
@@ -147,65 +154,9 @@ void UpdateDrawFrame() {
     lua_call(L, 1, 0);
     lua_pop(L, 1); // pop game ref
 
-    entity_t *player = &entities[0];
-    camera.position = Vector3{ player->x, 40.0f, player->y }; // Camera position
-    camera.target = Vector3{ player->x, 0.0f, player->y };      // Camera looking at point
-    BeginMode3D(camera);
 //        rlRotatef(GetTime() * 50, 0, 1, 0);
-
 //        DrawModelWires(m, Vector3{0, 0, 0}, 1.0, BLUE);
-
 //        DrawModel(m, Vector3{0,0,0}, 1.0, BLUE );
-
-    rlBegin(RL_LINES);
-    for(int x = -100; x < 100; x+= 10) {
-        rlVertex3f(x, 0, -100);
-        rlVertex3f(x, 0, 100);
-
-        rlVertex3f(-100, 0,  x);
-        rlVertex3f(100, 0, x);
-    }
-    rlEnd();
-
-    for(int i = 0; i < MAX_ENTITY; i++) {
-        entity_t *entity = &entities[i];
-        if (entity->used) {
-
-            lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
-            lua_getfield(L, -1, "GetDrawable");
-            lua_pushvalue(L, -2);
-            lua_call(L, 1, 1);
-
-            auto art = (VectorArt *) lua_touserdata(L, -1);
-            lua_pop(L, 1);  // pop userdata
-            lua_pop(L, 1);  // pop lua ref
-
-            if(art) {
-
-                rlPushMatrix();
-                rlTranslatef(entity->x, 0, entity->y);
-                rlScalef(entity->drawScale, entity->drawScale, entity->drawScale);
-                rlRotatef(entity->angle, 0, 1, 0);
-                DrawVectorArt(art);
-                rlPopMatrix();
-
-                rlPushMatrix();
-
-                rlTranslatef(entity->x - 2, 0, entity->y - 2);
-                rlScalef(0.1, 0.1, 0.1);
-                rlRotatef(entity->angle, 0, 1, 0);
-                rlRotatef(90, 1, 0, 0);
-                //printf("%d\n", entity->classID);
-                if(entity->classID == 3) {
-                    DrawText("Planet", 0, 0, 16, BLACK);
-
-                }
-//                DrawRectanglePro(Rectangle{entity->x, entity->y, 20, 20}, Vector2{10, 10}, entity->angle, RED);
-                rlPopMatrix();
-            }
-        }
-    }
-    EndMode3D();
 
     // DrawText(TextFormat("lua top: %d\n", lua_gettop(L)), 20, 20, 14, BLACK);
     EndDrawing();
@@ -233,6 +184,19 @@ int l_AllEntities(lua_State *L) {
     luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
     return 0;
 }
+
+int l_EntityForSlot(lua_State *L) {
+    int entity_id = lua_tointeger(L, -1);
+    entity_t *entity = &entities[entity_id];
+    if(!entity->used) {
+        lua_pushnil(L);
+    } else {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, entity->lua_ref);
+    }
+
+    return 1;
+}
+
 extern Vector2 *load_struct_Vector2(lua_State *L, int n, bool optional);
 extern Color *load_struct_Color(lua_State *L, int n, bool optional);
 
@@ -344,8 +308,14 @@ int main(int argc, const char *argv[]) {
     lua_pushcfunction(L, l_AllEntities);
     lua_setglobal(L, "AllEntities");
 
+    lua_pushcfunction(L, l_EntityForSlot);
+    lua_setglobal(L, "EntityForSlot");
+
     lua_pushcfunction(L, l_DrawSurroundingRectangle);
     lua_setglobal(L, "DrawSurroundingRectangle");
+
+    lua_pushcfunction(L, l_DrawVectorArt);
+    lua_setglobal(L, "DrawVectorArt");
 
     lua_getglobal(L, "InitGame");
     lua_call(L, 0, 1);

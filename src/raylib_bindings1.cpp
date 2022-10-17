@@ -1,6 +1,7 @@
 #include <cstring>
 #include <cstdlib>
 #include "raylib.h"
+#include "rlgl.h"
 #include "raymath.h"
 extern "C" {
 #include <lua/lauxlib.h>
@@ -74,6 +75,27 @@ Rectangle *load_struct_Rectangle(lua_State *L, int n, bool optional) {
 	}
 	Rectangle * _val = (Rectangle *) lua_touserdata(L, -1);
 	lua_pop(L, 1); // pop the userdata
+	 return _val;
+}
+Camera3D *load_struct_Camera3D(lua_State *L, int n, bool optional) {
+	if(!lua_istable(L, n)) {
+		if(optional) return nullptr;
+		printf("Error: Not a table\n"); exit(0);
+		return 0;
+	}
+	lua_pushstring(L, "@"); lua_rawget(L, n - 1);
+	if(!lua_isuserdata(L, -1)) {
+		printf("Error: not userdata\n"); exit(0);
+		return 0;
+	}
+	Camera3D * _val = (Camera3D *) lua_touserdata(L, -1);
+	lua_pop(L, 1); // pop the userdata
+	Vector3 * _position = (Vector3 *) load_member_struct(L, n, "position");
+	_val->position = *_position;
+	Vector3 * _target = (Vector3 *) load_member_struct(L, n, "target");
+	_val->target = *_target;
+	Vector3 * _up = (Vector3 *) load_member_struct(L, n, "up");
+	_val->up = *_up;
 	 return _val;
 }
 Camera2D *load_struct_Camera2D(lua_State *L, int n, bool optional) {
@@ -301,6 +323,40 @@ static int Rectangle_Alloc(lua_State *L) {
 	return 1;
 }
 
+static int Camera3D_read_fovy(lua_State *L) {
+Camera3D * _userdata = load_struct_Camera3D(L, -1, false);
+	lua_pushnumber(L, _userdata->fovy);
+	return 1;
+}
+
+static int Camera3D_write_fovy(lua_State *L) {
+Camera3D * _userdata = load_struct_Camera3D(L, -2, false);
+	float _fovy = lua_tonumber(L, -1);
+	_userdata->fovy = _fovy;
+
+	return 0;
+}
+
+static int Camera3D_read_projection(lua_State *L) {
+Camera3D * _userdata = load_struct_Camera3D(L, -1, false);
+	lua_pushinteger(L, _userdata->projection);
+	return 1;
+}
+
+static int Camera3D_write_projection(lua_State *L) {
+Camera3D * _userdata = load_struct_Camera3D(L, -2, false);
+	int _projection = lua_tointeger(L, -1);
+	_userdata->projection = _projection;
+
+	return 0;
+}
+
+static int Camera3D_Alloc(lua_State *L) {
+	auto val = (Camera3D *) lua_newuserdata(L, sizeof(Camera3D));
+	memset(val, 0, sizeof(Camera3D));
+	return 1;
+}
+
 static int Camera2D_read_rotation(lua_State *L) {
 Camera2D * _userdata = load_struct_Camera2D(L, -1, false);
 	lua_pushnumber(L, _userdata->rotation);
@@ -399,6 +455,17 @@ static int l_BeginMode2D(lua_State *L) {
 }
 static int l_EndMode2D(lua_State *L) {
 	EndMode2D();
+	;
+	return 1;
+}
+static int l_BeginMode3D(lua_State *L) {
+	Camera3D * camera = load_struct_Camera3D(L, -1, false);
+	BeginMode3D(*camera);
+	;
+	return 1;
+}
+static int l_EndMode3D(lua_State *L) {
+	EndMode3D();
 	;
 	return 1;
 }
@@ -955,6 +1022,135 @@ static int l_Vector2Scale(lua_State *L) {
         ;
 	return 1;
 }
+static int l_rlBegin(lua_State *L) {
+	int mode = lua_tointeger(L, -1);
+	rlBegin(mode);
+	;
+	return 1;
+}
+static int l_rlEnd(lua_State *L) {
+	rlEnd();
+	;
+	return 1;
+}
+static int l_rlVertex2i(lua_State *L) {
+	int x = lua_tointeger(L, -2);
+	int y = lua_tointeger(L, -1);
+	rlVertex2i(x, y);
+	;
+	return 1;
+}
+static int l_rlVertex2f(lua_State *L) {
+	float x = lua_tonumber(L, -2);
+	float y = lua_tonumber(L, -1);
+	rlVertex2f(x, y);
+	;
+	return 1;
+}
+static int l_rlVertex3f(lua_State *L) {
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+	rlVertex3f(x, y, z);
+	;
+	return 1;
+}
+static int l_rlTexCoord2f(lua_State *L) {
+	float x = lua_tonumber(L, -2);
+	float y = lua_tonumber(L, -1);
+	rlTexCoord2f(x, y);
+	;
+	return 1;
+}
+static int l_rlNormal3f(lua_State *L) {
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+	rlNormal3f(x, y, z);
+	;
+	return 1;
+}
+static int l_rlColor4ub(lua_State *L) {
+	int r = lua_tointeger(L, -4);
+	int g = lua_tointeger(L, -3);
+	int b = lua_tointeger(L, -2);
+	int a = lua_tointeger(L, -1);
+	rlColor4ub(r, g, b, a);
+	;
+	return 1;
+}
+static int l_rlColor3f(lua_State *L) {
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+	rlColor3f(x, y, z);
+	;
+	return 1;
+}
+static int l_rlColor4f(lua_State *L) {
+	float x = lua_tonumber(L, -4);
+	float y = lua_tonumber(L, -3);
+	float z = lua_tonumber(L, -2);
+	float w = lua_tonumber(L, -1);
+	rlColor4f(x, y, z, w);
+	;
+	return 1;
+}
+static int l_rlMatrixMode(lua_State *L) {
+	int mode = lua_tointeger(L, -1);
+	rlMatrixMode(mode);
+	;
+	return 1;
+}
+static int l_rlPushMatrix(lua_State *L) {
+	rlPushMatrix();
+	;
+	return 1;
+}
+static int l_rlPopMatrix(lua_State *L) {
+	rlPopMatrix();
+	;
+	return 1;
+}
+static int l_rlLoadIdentity(lua_State *L) {
+	rlLoadIdentity();
+	;
+	return 1;
+}
+static int l_rlTranslatef(lua_State *L) {
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+	rlTranslatef(x, y, z);
+	;
+	return 1;
+}
+static int l_rlRotatef(lua_State *L) {
+	float angle = lua_tonumber(L, -4);
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+	rlRotatef(angle, x, y, z);
+	;
+	return 1;
+}
+static int l_rlScalef(lua_State *L) {
+	float x = lua_tonumber(L, -3);
+	float y = lua_tonumber(L, -2);
+	float z = lua_tonumber(L, -1);
+	rlScalef(x, y, z);
+	;
+	return 1;
+}
+static int l_rlViewport(lua_State *L) {
+	int x = lua_tointeger(L, -4);
+	int y = lua_tointeger(L, -3);
+	int width = lua_tointeger(L, -2);
+	int height = lua_tointeger(L, -1);
+	rlViewport(x, y, width, height);
+	;
+	return 1;
+}
 void init_raylib_bindings1(lua_State *L) {
 	lua_createtable(L, 0, 200);
 	lua_createtable(L, 0, 200);
@@ -1020,6 +1216,16 @@ void init_raylib_bindings1(lua_State *L) {
 	lua_setfield(L, -2, "Rectangle_write_height");
 	lua_pushcfunction(L, Rectangle_Alloc);
 	lua_setfield(L, -2, "Rectangle_Alloc");
+	lua_pushcfunction(L, Camera3D_read_fovy);
+	lua_setfield(L, -2, "Camera3D_read_fovy");
+	lua_pushcfunction(L, Camera3D_write_fovy);
+	lua_setfield(L, -2, "Camera3D_write_fovy");
+	lua_pushcfunction(L, Camera3D_read_projection);
+	lua_setfield(L, -2, "Camera3D_read_projection");
+	lua_pushcfunction(L, Camera3D_write_projection);
+	lua_setfield(L, -2, "Camera3D_write_projection");
+	lua_pushcfunction(L, Camera3D_Alloc);
+	lua_setfield(L, -2, "Camera3D_Alloc");
 	lua_pushcfunction(L, Camera2D_read_rotation);
 	lua_setfield(L, -2, "Camera2D_read_rotation");
 	lua_pushcfunction(L, Camera2D_write_rotation);
@@ -1055,6 +1261,10 @@ void init_raylib_bindings1(lua_State *L) {
 	lua_setfield(L, -2, "BeginMode2D");
 	lua_pushcfunction(L, l_EndMode2D);
 	lua_setfield(L, -2, "EndMode2D");
+	lua_pushcfunction(L, l_BeginMode3D);
+	lua_setfield(L, -2, "BeginMode3D");
+	lua_pushcfunction(L, l_EndMode3D);
+	lua_setfield(L, -2, "EndMode3D");
 	lua_pushcfunction(L, l_IsMouseButtonPressed);
 	lua_setfield(L, -2, "IsMouseButtonPressed");
 	lua_pushcfunction(L, l_IsMouseButtonDown);
@@ -1163,6 +1373,42 @@ void init_raylib_bindings1(lua_State *L) {
 	lua_setfield(L, -2, "Vector2Add");
 	lua_pushcfunction(L, l_Vector2Scale);
 	lua_setfield(L, -2, "Vector2Scale");
+	lua_pushcfunction(L, l_rlBegin);
+	lua_setfield(L, -2, "rlBegin");
+	lua_pushcfunction(L, l_rlEnd);
+	lua_setfield(L, -2, "rlEnd");
+	lua_pushcfunction(L, l_rlVertex2i);
+	lua_setfield(L, -2, "rlVertex2i");
+	lua_pushcfunction(L, l_rlVertex2f);
+	lua_setfield(L, -2, "rlVertex2f");
+	lua_pushcfunction(L, l_rlVertex3f);
+	lua_setfield(L, -2, "rlVertex3f");
+	lua_pushcfunction(L, l_rlTexCoord2f);
+	lua_setfield(L, -2, "rlTexCoord2f");
+	lua_pushcfunction(L, l_rlNormal3f);
+	lua_setfield(L, -2, "rlNormal3f");
+	lua_pushcfunction(L, l_rlColor4ub);
+	lua_setfield(L, -2, "rlColor4ub");
+	lua_pushcfunction(L, l_rlColor3f);
+	lua_setfield(L, -2, "rlColor3f");
+	lua_pushcfunction(L, l_rlColor4f);
+	lua_setfield(L, -2, "rlColor4f");
+	lua_pushcfunction(L, l_rlMatrixMode);
+	lua_setfield(L, -2, "rlMatrixMode");
+	lua_pushcfunction(L, l_rlPushMatrix);
+	lua_setfield(L, -2, "rlPushMatrix");
+	lua_pushcfunction(L, l_rlPopMatrix);
+	lua_setfield(L, -2, "rlPopMatrix");
+	lua_pushcfunction(L, l_rlLoadIdentity);
+	lua_setfield(L, -2, "rlLoadIdentity");
+	lua_pushcfunction(L, l_rlTranslatef);
+	lua_setfield(L, -2, "rlTranslatef");
+	lua_pushcfunction(L, l_rlRotatef);
+	lua_setfield(L, -2, "rlRotatef");
+	lua_pushcfunction(L, l_rlScalef);
+	lua_setfield(L, -2, "rlScalef");
+	lua_pushcfunction(L, l_rlViewport);
+	lua_setfield(L, -2, "rlViewport");
 	lua_setglobal(L, "rl");
 }
 

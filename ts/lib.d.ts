@@ -20,12 +20,26 @@ declare function MSG_ReadInt(msgbuf: any): number;
 
 declare function Internal_Init_Entity_Base(registerClassFunc: RegisterClassFunc, clz: any): void;
 
-declare class Base{}
+declare abstract class Base{
+    x: number;
+    y: number;
+    angle: number;
+    index: number;
+    active: boolean;
+    drawScale: number;
+    classID: number;
+
+    public GetDrawable(): any;
+}
 
 /** @noSelf **/
 type AllEntitiesCallback = (this: void, o: Base) => boolean
 
 /** @noSelf **/
 declare function AllEntities(callback: AllEntitiesCallback);
+
+declare function EntityForSlot(slot: number): Base;
+
+declare function DrawVectorArt(art: any): void;
 
 declare function DrawSurroundingRectangle(pt: Vector2, width: number, height: number, color: rl.Color);

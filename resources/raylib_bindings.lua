@@ -1,27 +1,23 @@
 return function(____exports)
--- Rectangle
-local Rectangle = {}
-Rectangle.prototype = {}
-Rectangle.read_bindings = {}
-Rectangle.write_bindings = {}
-Rectangle.read_bindings.x = rl["@"]["Rectangle_read_x"]
-Rectangle.write_bindings.x = rl["@"]["Rectangle_write_x"]
-Rectangle.read_bindings.y = rl["@"]["Rectangle_read_y"]
-Rectangle.write_bindings.y = rl["@"]["Rectangle_write_y"]
-Rectangle.read_bindings.width = rl["@"]["Rectangle_read_width"]
-Rectangle.write_bindings.width = rl["@"]["Rectangle_write_width"]
-Rectangle.read_bindings.height = rl["@"]["Rectangle_read_height"]
-Rectangle.write_bindings.height = rl["@"]["Rectangle_write_height"]
-Rectangle.mt = {
-    	 __index = function(t, k) return Rectangle.read_bindings[k](t) end,
-    	 __newindex = function(t, k, v) Rectangle.write_bindings[k](t, v) end
+-- Vector2
+local Vector2 = {}
+Vector2.prototype = {}
+Vector2.read_bindings = {}
+Vector2.write_bindings = {}
+Vector2.read_bindings.x = rl["@"]["Vector2_read_x"]
+Vector2.write_bindings.x = rl["@"]["Vector2_write_x"]
+Vector2.read_bindings.y = rl["@"]["Vector2_read_y"]
+Vector2.write_bindings.y = rl["@"]["Vector2_write_y"]
+Vector2.mt = {
+    	 __index = function(t, k) return Vector2.read_bindings[k](t) end,
+    	 __newindex = function(t, k, v) Vector2.write_bindings[k](t, v) end
     }
-function Rectangle:new(args)
+function Vector2:new(args)
 	local o = {}
 
-    setmetatable(o, Rectangle.mt)
+    setmetatable(o, Vector2.mt)
 
-    d = rl["@"]["Rectangle_Alloc"]()
+    d = rl["@"]["Vector2_Alloc"]()
     rawset(o, "@", d)
     if args then
         for a0, a1 in pairs(args) do
@@ -30,7 +26,37 @@ function Rectangle:new(args)
      end
     return o
 end
-____exports.Rectangle = Rectangle
+____exports.Vector2 = Vector2
+-- Vector3
+local Vector3 = {}
+Vector3.prototype = {}
+Vector3.read_bindings = {}
+Vector3.write_bindings = {}
+Vector3.read_bindings.x = rl["@"]["Vector3_read_x"]
+Vector3.write_bindings.x = rl["@"]["Vector3_write_x"]
+Vector3.read_bindings.y = rl["@"]["Vector3_read_y"]
+Vector3.write_bindings.y = rl["@"]["Vector3_write_y"]
+Vector3.read_bindings.z = rl["@"]["Vector3_read_z"]
+Vector3.write_bindings.z = rl["@"]["Vector3_write_z"]
+Vector3.mt = {
+    	 __index = function(t, k) return Vector3.read_bindings[k](t) end,
+    	 __newindex = function(t, k, v) Vector3.write_bindings[k](t, v) end
+    }
+function Vector3:new(args)
+	local o = {}
+
+    setmetatable(o, Vector3.mt)
+
+    d = rl["@"]["Vector3_Alloc"]()
+    rawset(o, "@", d)
+    if args then
+        for a0, a1 in pairs(args) do
+            o[a0] = a1
+        end
+     end
+    return o
+end
+____exports.Vector3 = Vector3
 -- Color
 local Color = {}
 Color.prototype = {}
@@ -63,25 +89,29 @@ function Color:new(args)
     return o
 end
 ____exports.Color = Color
--- Vector2
-local Vector2 = {}
-Vector2.prototype = {}
-Vector2.read_bindings = {}
-Vector2.write_bindings = {}
-Vector2.read_bindings.x = rl["@"]["Vector2_read_x"]
-Vector2.write_bindings.x = rl["@"]["Vector2_write_x"]
-Vector2.read_bindings.y = rl["@"]["Vector2_read_y"]
-Vector2.write_bindings.y = rl["@"]["Vector2_write_y"]
-Vector2.mt = {
-    	 __index = function(t, k) return Vector2.read_bindings[k](t) end,
-    	 __newindex = function(t, k, v) Vector2.write_bindings[k](t, v) end
+-- Rectangle
+local Rectangle = {}
+Rectangle.prototype = {}
+Rectangle.read_bindings = {}
+Rectangle.write_bindings = {}
+Rectangle.read_bindings.x = rl["@"]["Rectangle_read_x"]
+Rectangle.write_bindings.x = rl["@"]["Rectangle_write_x"]
+Rectangle.read_bindings.y = rl["@"]["Rectangle_read_y"]
+Rectangle.write_bindings.y = rl["@"]["Rectangle_write_y"]
+Rectangle.read_bindings.width = rl["@"]["Rectangle_read_width"]
+Rectangle.write_bindings.width = rl["@"]["Rectangle_write_width"]
+Rectangle.read_bindings.height = rl["@"]["Rectangle_read_height"]
+Rectangle.write_bindings.height = rl["@"]["Rectangle_write_height"]
+Rectangle.mt = {
+    	 __index = function(t, k) return Rectangle.read_bindings[k](t) end,
+    	 __newindex = function(t, k, v) Rectangle.write_bindings[k](t, v) end
     }
-function Vector2:new(args)
+function Rectangle:new(args)
 	local o = {}
 
-    setmetatable(o, Vector2.mt)
+    setmetatable(o, Rectangle.mt)
 
-    d = rl["@"]["Vector2_Alloc"]()
+    d = rl["@"]["Rectangle_Alloc"]()
     rawset(o, "@", d)
     if args then
         for a0, a1 in pairs(args) do
@@ -90,7 +120,38 @@ function Vector2:new(args)
      end
     return o
 end
-____exports.Vector2 = Vector2
+____exports.Rectangle = Rectangle
+-- Camera3D
+local Camera3D = {}
+Camera3D.prototype = {}
+Camera3D.read_bindings = {}
+Camera3D.write_bindings = {}
+Camera3D.read_bindings.fovy = rl["@"]["Camera3D_read_fovy"]
+Camera3D.write_bindings.fovy = rl["@"]["Camera3D_write_fovy"]
+Camera3D.read_bindings.projection = rl["@"]["Camera3D_read_projection"]
+Camera3D.write_bindings.projection = rl["@"]["Camera3D_write_projection"]
+Camera3D.mt = {
+    	 __index = function(t, k) return Camera3D.read_bindings[k](t) end,
+    	 __newindex = function(t, k, v) Camera3D.write_bindings[k](t, v) end
+    }
+function Camera3D:new(args)
+	local o = {}
+	o.position = Vector3:new()
+	o.target = Vector3:new()
+	o.up = Vector3:new()
+
+    setmetatable(o, Camera3D.mt)
+
+    d = rl["@"]["Camera3D_Alloc"]()
+    rawset(o, "@", d)
+    if args then
+        for a0, a1 in pairs(args) do
+            o[a0] = a1
+        end
+     end
+    return o
+end
+____exports.Camera3D = Camera3D
 -- Camera2D
 local Camera2D = {}
 Camera2D.prototype = {}
@@ -121,8 +182,10 @@ function Camera2D:new(args)
     return o
 end
 ____exports.Camera2D = Camera2D
+____exports.BLACK = Color:new({r = 0, g = 0, b = 0, a = 255})
 ____exports.LIGHTGRAY = Color:new({r = 200, g = 200, b = 200, a = 255})
 ____exports.BLUE = Color:new({r = 0, g = 0, b = 245, a = 255})
+____exports.MAGENTA = Color:new({r = 255, g = 0, b = 255, a = 255})
 ____exports.RAYWHITE = Color:new({r = 245, g = 245, b = 245, a = 255})
 ____exports.KeyboardKey = {
 	KEY_NULL = 0,
@@ -244,6 +307,9 @@ ____exports.MouseButton = {
 	MOUSE_BUTTON_EXTRA = 4,
 	MOUSE_BUTTON_FORWARD = 5,
 	MOUSE_BUTTON_BACK = 6,
+}
+____exports.CameraProjection = {
+	CAMERA_PERSPECTIVE = 0,
 }
 return ____exports
 end

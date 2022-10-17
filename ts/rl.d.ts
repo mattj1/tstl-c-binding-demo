@@ -28,6 +28,15 @@ declare namespace rl {
 		width: number;
 		height: number;
 	}
+	/** @customConstructor rl.Camera3D:new */
+	class Camera3D {
+		constructor(args?: {position?: Vector3, target?: Vector3, up?: Vector3, fovy?: number, projection?: number});
+		position: Vector3;
+		target: Vector3;
+		up: Vector3;
+		fovy: number;
+		projection: number;
+	}
 	/** @customConstructor rl.Camera2D:new */
 	class Camera2D {
 		constructor(args?: {offset?: Vector2, target?: Vector2, rotation?: number, zoom?: number});
@@ -36,8 +45,10 @@ declare namespace rl {
 		rotation: number;
 		zoom: number;
 	}
+	const BLACK: Color;
 	const LIGHTGRAY: Color;
 	const BLUE: Color;
+	const MAGENTA: Color;
 	const RAYWHITE: Color;
 	enum KeyboardKey {
 		KEY_NULL = 0,
@@ -160,6 +171,9 @@ declare namespace rl {
 		MOUSE_BUTTON_FORWARD = 5,
 		MOUSE_BUTTON_BACK = 6,
 	}
+	enum CameraProjection {
+		CAMERA_PERSPECTIVE = 0,
+	}
 	function IsKeyPressed(key: number): boolean;
 	function IsKeyDown(key: number): boolean;
 	function IsKeyReleased(key: number): boolean;
@@ -172,6 +186,8 @@ declare namespace rl {
 	function EndDrawing(): void;
 	function BeginMode2D(camera: Camera2D): void;
 	function EndMode2D(): void;
+	function BeginMode3D(camera: Camera3D): void;
+	function EndMode3D(): void;
 	function IsMouseButtonPressed(button: number): boolean;
 	function IsMouseButtonDown(button: number): boolean;
 	function IsMouseButtonReleased(button: number): boolean;
@@ -226,4 +242,22 @@ declare namespace rl {
 	function Vector2DistanceSqr(v1: Vector2, v2: Vector2): number;
 	function Vector2Add(v1: Vector2, v2: Vector2): Vector2;
 	function Vector2Scale(v: Vector2, scale: number): Vector2;
+	function rlBegin(mode: number): void;
+	function rlEnd(): void;
+	function rlVertex2i(x: number, y: number): void;
+	function rlVertex2f(x: number, y: number): void;
+	function rlVertex3f(x: number, y: number, z: number): void;
+	function rlTexCoord2f(x: number, y: number): void;
+	function rlNormal3f(x: number, y: number, z: number): void;
+	function rlColor4ub(r: number, g: number, b: number, a: number): void;
+	function rlColor3f(x: number, y: number, z: number): void;
+	function rlColor4f(x: number, y: number, z: number, w: number): void;
+	function rlMatrixMode(mode: number): void;
+	function rlPushMatrix(): void;
+	function rlPopMatrix(): void;
+	function rlLoadIdentity(): void;
+	function rlTranslatef(x: number, y: number, z: number): void;
+	function rlRotatef(angle: number, x: number, y: number, z: number): void;
+	function rlScalef(x: number, y: number, z: number): void;
+	function rlViewport(x: number, y: number, width: number, height: number): void;
 }
