@@ -3,12 +3,9 @@ import {Global} from "../Global";
 import {NavMapScene} from "./NavMapScene";
 import BeginMode3D = rl.BeginMode3D;
 import EndMode3D = rl.EndMode3D;
+import {VectorSet} from "../Math";
 
-function VectorSet(v: rl.Vector3, x: number, y: number, z: number) {
-    v.x = x;
-    v.y = y;
-    v.z = z;
-}
+
 
 
 export class GameScene extends Scene {
@@ -85,8 +82,8 @@ export class GameScene extends Scene {
         rl.EndMode3D();
 
         if(this.isFocused) {
-            rl.DrawText(`Player pos: ${Global.player.x} ${Global.player.y}`, 64, 64, 12, rl.BLUE);
-            rl.DrawText(`N - open navigation map`, 64, 96, 18, rl.BLUE);
+            rl.DrawText(`Player pos: ${Global.player.x} ${Global.player.y}`, 64, 64, 10, rl.BLUE);
+            rl.DrawText(`N - open navigation map`, 64, 96, 20, rl.BLUE);
         }
         // if(Global.playerController.isHyperspace) {
         //     rl.DrawText(`Hyperspace in ${Global.playerController.hyperspaceTime}...`, 64, 96, 24, rl.BLUE);

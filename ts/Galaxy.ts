@@ -1,9 +1,10 @@
 import Vector2 = rl.Vector2;
 import {Global} from "./Global";
+import Vector3 = rl.Vector3;
 
 
 export class Planet {
-    position: Vector2;
+    position: Vector3;
 
     gridX: number;
     gridY: number;
@@ -17,7 +18,7 @@ export class Planet {
     visible: number;
 
     constructor() {
-        this.position = new Vector2();
+        this.position = new Vector3();
         this.visible = 0;
     }
 }

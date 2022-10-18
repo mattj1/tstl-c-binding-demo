@@ -8,6 +8,12 @@ import {GameScene} from "./Scenes/GameScene";
 import {Global} from "./Global";
 import {Galaxy} from "./Galaxy";
 import {PlayerController} from "./PlayerController";
+import DrawText = rl.DrawText;
+
+class Message {
+    time: number;
+    message: string;
+}
 
 export class Game {
 
@@ -32,6 +38,7 @@ export class Game {
 
         this.AddSceneAndFocus(new GameScene());
 
+        this.Message("Game init...", 3.0);
 
     }
 
@@ -73,25 +80,19 @@ export class Game {
     }
 
     Update() {
+
+        Global.playerController.Update();
+
         for(let s of this.scenes) {
             s.Update();
         }
 
-        if(rl.IsKeyPressed(rl.KeyboardKey.KEY_H)) {
-            console.log("Begin hyperspace");
+        for(let m of this.messages) {
+            m.time -= 0.016;
+            if(m.time < 0) {
+                this.messages = this.messages.filter(value => value != m);
+            }
         }
-
-        if(rl.IsKeyPressed(rl.KeyboardKey.KEY_N)) {
-            console.log("Nav panel");
-        }
-
-        // console.log("Game.Update()");
-
-        // AllEntities((e: Base) => {
-        //     // @ts-ignore
-        //     console.log("AllEntities entity", e.index, e.classID, e.drawable);
-        //     return false;
-        // })
     }
 
     Draw() {
@@ -99,9 +100,30 @@ export class Game {
             s.Draw();
         }
 
+        let y = 400;
+        for(let i = this.messages.length - 1; i >= 0; i--) {
+            let m = this.messages[i];
+            DrawText(m.message, 32, y, 20, rl.BLACK);
+            y -= 18;
+        }
     }
 
     RemoveScene(param: Scene) {
        this.scenes = this.scenes.filter(value => value != param);
+
+       if(this.scenes.length > 0) {
+           this.scenes[this.scenes.length - 1].isFocused = true;
+       }
+    }
+
+
+
+    messages: Array<Message> = [];
+
+    Message(msg:string, time: number) {
+        let m = new Message();
+        m.message = msg;
+        m.time = time;
+        this.messages.push(m);
     }
 }

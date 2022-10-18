@@ -25,18 +25,29 @@ export class NavMapScene extends Scene {
 
     Update() {
         if(rl.IsKeyPressed(rl.KeyboardKey.KEY_A)) {
-            Global.playerController.SetDestinationPlanet(this.selectedPlanet);
+            if(this.selectedPlanet != null) {
+
+                Global.playerController.SetDestinationPlanet(this.selectedPlanet);
+                this.CloseNavMap();
+            }
         }
 
-        if(rl.IsKeyPressed(rl.KeyboardKey.KEY_ESCAPE)) {
-            Global.game.RemoveScene(this);
+        if(rl.IsKeyPressed(rl.KeyboardKey.KEY_Q)) {
+           this.CloseNavMap();
         }
+    }
+
+    CloseNavMap() {
+        Global.game.RemoveScene(this);
     }
 
     Draw() {
 
-        rl.DrawRectangle(this.r.x, this.r.y, this.r.width, this.r.height, rl.ColorAlpha(rl.BLACK, 0.8))
-        rl.DrawText(`*** Nav map ***`, 128, 128, 24, rl.BLUE);
+        rl.DrawRectangle(this.r.x, this.r.y, this.r.width, this.r.height, rl.ColorAlpha(rl.BLACK, 0.7))
+        rl.DrawText(`*** Nav map ***`, 64, 64, 20, rl.RAYWHITE);
+        rl.DrawText(`A - Warp to star system`, 64, 96, 20, rl.RAYWHITE);
+        rl.DrawText(`Q - Exit map`, 64, 128, 20, rl.RAYWHITE);
+
         // rl.DrawRectangleLinesEx(this.r, 3, rl.BLUE)
 
         rl.BeginMode2D(this.camera);
@@ -58,7 +69,7 @@ export class NavMapScene extends Scene {
         if(showSelectedPlanet == null) {
             showSelectedPlanet = Global.planet;
         }
-        DrawSurroundingRectangle(showSelectedPlanet.position, 40, 40, rl.BLACK);
+        DrawSurroundingRectangle(showSelectedPlanet.position, 40, 40, rl.RAYWHITE);
 
         rl.DrawCircleSectorLines(Global.planet.position, 20, 0, 360, 20, rl.BLUE);
         rl.EndMode2D();

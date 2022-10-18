@@ -2,10 +2,12 @@ import {Base} from "./Base";
 import {RegisterClass, SpawnEntity} from "../Entity";
 import {Shot} from "./Shot";
 import {VectorDrawable} from "../Drawable";
+import Vector3 = rl.Vector3;
+import {Global} from "../Global";
 
 export class Player extends Base {
 
-    velocity: Vector2 = new Vector2();
+    velocity: Vector3 = new Vector3();
 
     constructor() {
         super();
@@ -20,18 +22,25 @@ export class Player extends Base {
     }
 
     Update() {
-        if (rl.IsKeyDown(263)) {
+
+        let keys = Global.playerController.keys;
+        let pc = Global.playerController;
+
+        if ((keys & 0x04) != 0) {
             this.angle += 2;
         }
 
-        if (rl.IsKeyDown(262)) {
+        if ((keys & 0x08) != 0) {
             // Right pressed
             this.angle -= 2;
         }
 
-        if (rl.IsKeyDown(rl.KeyboardKey.KEY_UP)) {
-            this.velocity.x += .01 * Math.cos(this.angle * Math.PI / 180.0);
-            this.velocity.y -= .01 * Math.sin(this.angle * Math.PI / 180.0);
+        if(this.angle < 0) this.angle += 360;
+        if(this.angle > 360) this.angle -= 360;
+
+        if ((keys & 0x01) != 0) {
+            this.velocity.x += pc.thrust_fac * .01 * Math.cos(this.angle * Math.PI / 180.0);
+            this.velocity.y -= pc.thrust_fac * .01 * Math.sin(this.angle * Math.PI / 180.0);
             // this.y -= 2;
         }
 
@@ -48,8 +57,8 @@ export class Player extends Base {
             }
         }
 
-        this.velocity.x *= 0.98;
-        this.velocity.y *= 0.98;
+        this.velocity.x *= pc.drag_fac; //0.98;
+        this.velocity.y *= pc.drag_fac; //0.98;
 
         this.x += this.velocity.x;
         this.y += this.velocity.y;
