@@ -230,6 +230,10 @@ int l_DrawSurroundingRectangle(lua_State *L) {
 }
 
 int main(int argc, const char *argv[]) {
+    extern void main2();
+    main2();
+    return 0;
+
     L = luaL_newstate();
     luaL_openlibs(L);
     lua_pushcfunction(L, _traceback);
@@ -355,6 +359,8 @@ int main(int argc, const char *argv[]) {
 
 //    Mesh mesh = GenMeshCube(1, 1, 1);
 //    Model m = LoadModelFromMesh(mesh);
+
+//    while (true)
     while (!WindowShouldClose())
     {
         UpdateDrawFrame();
